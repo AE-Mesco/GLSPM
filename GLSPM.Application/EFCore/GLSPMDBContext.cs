@@ -1,4 +1,5 @@
-﻿using GLSPM.Domain.Entities;
+﻿using GLSPM.Application.EFCore.EntitiesConfigurations;
+using GLSPM.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +38,8 @@ namespace GLSPM.Application.EFCore
                 .WithMany()
                 .HasForeignKey(e => e.UserID);
             });
+
+            builder.ApplyConfiguration(new IdentityRoleConfig());
         }
 
     }
