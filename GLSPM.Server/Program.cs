@@ -1,3 +1,4 @@
+using GLSPM.Application.EFCore.Repositories;
 using GLSPM.Server;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.ConfigureDB(builder.Configuration);
+builder.Services.ConfigEFCoreLayer();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

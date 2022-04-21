@@ -10,7 +10,7 @@ namespace GLSPM.Domain.Repositories
     {
         IRepository<Card,int> CardsRepository { get; }
         IRepository<Password, int> PasswordsRepository { get; }
-        IRepository<ApplicationUser, int> UserssRepository { get; }
+        IRepository<ApplicationUser, string> UserssRepository { get; }
         Task<int> CommitAsync();
     }
 }

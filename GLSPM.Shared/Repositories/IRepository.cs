@@ -10,7 +10,7 @@ namespace GLSPM.Domain.Repositories
     public interface IRepository<TEntity, TKey>
     {
         Task<TEntity> GetAsync(TKey key);
-        Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? condition = null);
+        Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? condition = null,string sorting=null,int skipCound=0,int maxResult=100);
         Task<IQueryable<TEntity>> GetAsQueryableAsync();
         Task<TEntity> InsertAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
