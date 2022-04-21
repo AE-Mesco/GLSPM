@@ -4,6 +4,7 @@ using GLSPM.Application.EFCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GLSPM.Server.Migrations
 {
     [DbContext(typeof(GLSPMDBContext))]
-    partial class GLSPMDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220421090829_RolesSeeding")]
+    partial class RolesSeeding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
