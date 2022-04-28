@@ -65,12 +65,15 @@ namespace GLSPM.Application.AppServices
             return new PagedListDto<TReadDto>(data.Count(), results);
         }
 
-        public virtual async Task<TReadDto> UpdateAsync(TUpdateDto input)
+        public virtual async Task<TReadDto> UpdateAsync(TKey key, TUpdateDto input)
         {
-            var data = Mapper.Map<TEntity>(input);
-            await Repository.UpdateAsync(data);
-            await UnitOfWork.CommitAsync();
-            return Mapper.Map<TReadDto>(data);
+            if (await Repository.GetAsync(key) != null)
+            {
+                var data = Mapper.Map<TEntity>(input);
+                await Repository.UpdateAsync(data);
+                await UnitOfWork.CommitAsync();
+                return Mapper.Map<TReadDto>(data);
+            }
         }
     }
 }

@@ -8,18 +8,7 @@ namespace GLSPM.Server
 {
     public static class Configurations
     {
-        public static IServiceCollection ConfigureDB(this IServiceCollection services,IConfiguration configuration)
-        {
-            var MSCS = configuration.GetConnectionString("MSCS");
-            var MYSCS = configuration.GetConnectionString("MYSCS");
-            var liteCS = configuration.GetConnectionString("liteCS");
-            services.AddDbContext<GLSPMDBContext>(options =>
-            {
-                options.UseSqlServer(MSCS, c => c.MigrationsAssembly("GLSPM.Server"));
-                options.EnableDetailedErrors();
-            });
-            return services;
-        }
+        
 
         public static UserManager<ApplicationUser> SeedDefUsers(this UserManager<ApplicationUser> userManager)
         {

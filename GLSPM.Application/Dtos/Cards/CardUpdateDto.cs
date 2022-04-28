@@ -3,12 +3,16 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GLSPM.Application.Dtos.Cards
 {
-    public class CardCreateDto
+    public class CardUpdateDto
     {
+        [Required]
+        public int ID { get; set; }
         [Required]
         [StringLength(50, MinimumLength = 2)]
         public string Title { get; set; }
@@ -18,18 +22,23 @@ namespace GLSPM.Application.Dtos.Cards
         public string UserID { get; set; }
     }
 
-    public class CardCreateDtoValidator : AbstractValidator<CardCreateDto>
+    public class CardUpdateDtoValidator : AbstractValidator<CardUpdateDto>
     {
-        public CardCreateDtoValidator()
+        public CardUpdateDtoValidator()
         {
+            RuleFor(c => c.ID)
+                .NotEmpty()
+                .WithMessage("The card ID is required");
+
             RuleFor(c => c.Title)
                 .NotEmpty()
-                .WithMessage("The Card title is required")
+                .WithMessage("The card title is required")
                 .Length(2, 50)
                 .WithMessage("The card title should be 2 to 50 charachters");
 
             RuleFor(c => c.UserID)
-                .NotEmpty();
+                .NotEmpty()
+                .WithMessage("The UserID is required");
 
             When(c => c.Avatar != null, () =>
             {
