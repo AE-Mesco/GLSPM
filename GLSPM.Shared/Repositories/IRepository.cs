@@ -11,6 +11,8 @@ namespace GLSPM.Domain.Repositories
     {
         Task<TEntity> GetAsync(TKey key);
         Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? condition = null,string sorting=null,int skipCound=0,int maxResult=100);
+        Task<IEnumerable<TEntity>> GetAllAsync(string filter, string sorting = null, int skipCound = 0, int maxResult = 100);
+        Task<IEnumerable<TEntity>> GetAllAsync(string sorting = null, int skipCound = 0, int maxResult = 100);
         Task<IQueryable<TEntity>> GetAsQueryableAsync();
         Task<TEntity> InsertAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);

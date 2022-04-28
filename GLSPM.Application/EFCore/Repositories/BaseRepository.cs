@@ -46,6 +46,27 @@ namespace GLSPM.Application.EFCore.Repositories
             return data;
         }
 
+        public virtual async Task<IEnumerable<TEntity>> GetAllAsync(string filter, string sorting = null, int skipCound = 0, int maxResult = 100)
+        {
+            var data = await _dbSet.Where(filter)
+                .OrderBy(sorting)
+                .Skip(skipCound)
+                .Take(maxResult)
+                .ToArrayAsync();
+            return data;
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(string sorting = null, int skipCound = 0, int maxResult = 100)
+        {
+            var data = await _dbSet
+                .OrderBy(sorting)
+                .Skip(skipCound)
+                .Take(maxResult)
+                .ToArrayAsync();
+            return data;
+
+        }
+
         public async Task<IQueryable<TEntity>> GetAsQueryableAsync()
         {
             return _dbSet.AsQueryable();
