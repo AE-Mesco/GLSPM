@@ -12,6 +12,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using CubesFramework.Security;
+using System.Security.Cryptography;
 
 namespace GLSPM.Application
 {
@@ -23,7 +25,9 @@ namespace GLSPM.Application
         {
             services.ConfigureDB(configuration)
                     .ConfigEFCoreLayer()
-                    .ConfigureFV();
+                    .ConfigureFV()
+                    .ComfigureCubesFW()
+                    .AddHttpContextAccessor();
             return services;
         }
 
@@ -35,6 +39,13 @@ namespace GLSPM.Application
                    config.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
                    config.RegisterValidatorsFromAssembly(Assembly.GetCallingAssembly());
                });
+            return services;
+        }
+
+        public static IServiceCollection ComfigureCubesFW(this IServiceCollection services)
+        {
+            var crypto = new Crypto(SHA256.Create());
+            services.AddSingleton(crypto);
             return services;
         }
         public static IServiceCollection ConfigureDB(this IServiceCollection services, IConfiguration configuration)

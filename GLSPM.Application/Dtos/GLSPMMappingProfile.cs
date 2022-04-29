@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using GLSPM.Application.Dtos.Cards;
+using GLSPM.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +13,16 @@ namespace GLSPM.Application.Dtos
     {
         public GLSPMMappingProfile()
         {
-
+            RegisterCards();
         }
 
-        
+        private void RegisterCards()
+        {
+            CreateMap<CardCreateDto, Card>();
+            CreateMap<Card, CardReadDto>()
+                .BeforeMap<CardToCardReadDtoMappingAction>()
+                .ReverseMap()
+                .BeforeMap<CardReadDtoToCardMappingAction>();
+        }
     }
 }
