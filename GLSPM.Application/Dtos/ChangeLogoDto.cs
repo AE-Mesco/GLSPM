@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.Dtos
 {
-    public class ChangeLogoDto
+    public class ChangeLogoDto<TKey>
     {
         [Required]
-        public string Key { get; set; }
+        public TKey Key { get; set; }
         [Required]
         public IFormFile Logo { get; set; }
     }
 
-    public class ChangeLogoDtoValidator:AbstractValidator<ChangeLogoDto>
+    public class ChangeLogoDtoValidator:AbstractValidator<ChangeLogoDto<object>>
     {
         public ChangeLogoDtoValidator()
         {

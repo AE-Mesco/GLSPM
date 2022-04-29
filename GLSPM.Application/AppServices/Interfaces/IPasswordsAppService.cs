@@ -1,5 +1,5 @@
 ﻿using GLSPM.Application.Dtos;
-using GLSPM.Application.Dtos.Cards;
+using GLSPM.Application.Dtos.Passwords;
 using GLSPM.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.AppServices.Interfaces
 {
-    public interface ICardsAppService : IAppService<Card,int,CardReadDto, CardCreateDto, CardUpdateDto>, ITrasherAppService<CardReadDto, int>
+    public interface IPasswordsAppService : IAppService<Password,int,PasswordReadDto,PasswordCreateDto,PasswordUpdateDto>, ITrasherAppService<PasswordCreateDto, int>
     {
         Task ChangeLogo(ChangeLogoDto<int> input);
     }
