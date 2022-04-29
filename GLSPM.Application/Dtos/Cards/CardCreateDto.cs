@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using CubesFramework.Security;
 using FluentValidation;
+using GLSPM.Domain;
 using GLSPM.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -78,21 +80,25 @@ namespace GLSPM.Application.Dtos.Cards
             When(c => c.Logo != null, () =>
             {
                 RuleFor(c => c.Logo.Length)
-                .ExclusiveBetween(1000, 5000000)
-                .WithMessage("The Logo image size should be 1kb to 5mb");
+                     .ExclusiveBetween(1000, 5000000)
+                     .WithMessage("The Logo image size should be 1kb to 5mb");
             });
         }
     }
 
-    public class CardCreateDtoMappingAction : IMappingAction<CardCreateDto,Card>
+    public class CardCreateDtoMappingAction : IMappingAction<CardCreateDto, Card>
     {
         private readonly Crypto _crypto;
         private readonly IConfiguration _configuration;
+        private readonly FilesPathes _filesPathes;
         private readonly string _encryptionCode;
-        public CardCreateDtoMappingAction(Crypto crypto, IConfiguration configuration)
+        public CardCreateDtoMappingAction(Crypto crypto,
+            IConfiguration configuration,
+            IOptions<FilesPathes> filesPathes)
         {
             _crypto = crypto;
             _configuration = configuration;
+            _filesPathes = filesPathes.Value;
             _encryptionCode = configuration.GetSection("EncryptionCode").Value;
         }
 
@@ -100,6 +106,16 @@ namespace GLSPM.Application.Dtos.Cards
         {
             destination.EncriptedCardNumber = _crypto.EncryptAes(source.CardNumber, _encryptionCode).Result;
             destination.EncriptedCVV = _crypto.EncryptAes(source.CVV, _encryptionCode).Result;
+            if (source.Logo != null)
+            {
+                var logoPath = Path.Combine(Path.GetFullPath(_filesPathes.LogosPath), $"{DateTime.Now.ToFileTime()}{Path.GetExtension(source.Logo.FileName)}");
+                using (FileStream logoStream = new FileStream(logoPath, FileMode.Create))
+                {
+                    source.Logo.CopyTo(logoStream);
+                    logoStream.Flush();
+                    destination.LogoPath = logoPath;
+                }
+            }
         }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using GLSPM.Application.AppServices.Interfaces;
 using GLSPM.Application.Dtos;
+using GLSPM.Domain;
 using GLSPM.Domain.Entities;
 using GLSPM.Domain.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +25,8 @@ namespace GLSPM.Application.AppServices
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IOptions<FilesPathes> filesPathes)
         {
             UnitOfWork = unitOfWork;
             Logger = logger;
@@ -32,6 +35,7 @@ namespace GLSPM.Application.AppServices
             HttpContextAccessor = httpContextAccessor;
             Configuration = configuration;
             Environment = environment;
+            FilesPathes = filesPathes.Value;
         }
         public IUnitOfWork UnitOfWork { get; }
 
@@ -40,6 +44,7 @@ namespace GLSPM.Application.AppServices
         public IHttpContextAccessor HttpContextAccessor { get; }
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
+        public FilesPathes FilesPathes { get; }
         public ILogger Logger { get; }
 
         public virtual async Task<TReadDto> CreateAsync(TCreateDto input)
@@ -86,6 +91,7 @@ namespace GLSPM.Application.AppServices
                 await UnitOfWork.CommitAsync();
                 return Mapper.Map<TReadDto>(data);
             }
+            return default;
         }
     }
 }

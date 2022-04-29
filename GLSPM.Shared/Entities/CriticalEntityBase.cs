@@ -7,6 +7,11 @@ namespace GLSPM.Domain.Entities
 {
     public abstract class CriticalEntityBase<TKey,TUserID>
     {
+        public CriticalEntityBase()
+        {
+            CreationDate = DateTime.Now;
+            IsSoftDeleted = false;
+        }
         [Key]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public TKey ID { get; set; }

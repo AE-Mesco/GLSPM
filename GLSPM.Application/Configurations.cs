@@ -14,6 +14,9 @@ using System.Text;
 using System.Threading.Tasks;
 using CubesFramework.Security;
 using System.Security.Cryptography;
+using GLSPM.Application.AppServices.Interfaces;
+using GLSPM.Application.AppServices;
+using GLSPM.Domain;
 
 namespace GLSPM.Application
 {
@@ -27,7 +30,9 @@ namespace GLSPM.Application
                     .ConfigEFCoreLayer()
                     .ConfigureFV()
                     .ComfigureCubesFW()
-                    .AddHttpContextAccessor();
+                    .AddHttpContextAccessor()
+                    .ConfigureOptions<FilesPathes>()
+                    .ConfigureAppSerivces();
             return services;
         }
 
@@ -41,7 +46,6 @@ namespace GLSPM.Application
                });
             return services;
         }
-
         public static IServiceCollection ComfigureCubesFW(this IServiceCollection services)
         {
             var crypto = new Crypto(SHA256.Create());
@@ -58,6 +62,12 @@ namespace GLSPM.Application
                 options.UseSqlServer(MSCS, c => c.MigrationsAssembly("GLSPM.Server"));
                 options.EnableDetailedErrors();
             });
+            return services;
+        }
+        public static IServiceCollection ConfigureAppSerivces(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IAppService<,,,,>), typeof(AppServiceBase<,,,,>));
+            services.AddScoped<ICardsAppService,CardAppSerivce>();
             return services;
         }
     }

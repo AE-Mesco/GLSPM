@@ -16,7 +16,6 @@ namespace GLSPM.Application.Dtos.Cards
         [Required]
         [StringLength(50, MinimumLength = 2)]
         public string Title { get; set; }
-        public IFormFile? Logo { get; set; }
         public string? AdditionalInfo { get; set; }
         [StringLength(250, MinimumLength = 3)]
         [Required]
@@ -29,8 +28,6 @@ namespace GLSPM.Application.Dtos.Cards
         public int ExpiryYear { get; set; }
         [Required]
         public string CVV { get; set; }
-        [Required]
-        public string UserID { get; set; }
     }
 
     public class CardUpdateDtoValidator : AbstractValidator<CardUpdateDto>
@@ -74,17 +71,6 @@ namespace GLSPM.Application.Dtos.Cards
                      .WithMessage("The CVV is required")
                      .Length(3);
             #endregion
-
-            RuleFor(c => c.UserID)
-                .NotEmpty()
-                .WithMessage("The UserID is required");
-
-            When(c => c.Logo != null, () =>
-            {
-                RuleFor(c => c.Logo.Length)
-                .ExclusiveBetween(1000, 5000000)
-                .WithMessage("The Logo image size should be 1kb to 5mb");
-            });
         }
     }
 }
