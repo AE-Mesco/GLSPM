@@ -30,11 +30,10 @@ namespace GLSPM.Application.AppServices
             ILogger<AppServiceBase<Password, int, PasswordReadDto, PasswordCreateDto, PasswordUpdateDto>> logger,
             IRepository<Password, int> repository,
             IMapper mapper,
-            IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
             IWebHostEnvironment environment,
             IOptions<FilesPathes> filesPathes,
-            Crypto crypto) : base(unitOfWork, logger, repository, mapper, httpContextAccessor, configuration, environment, filesPathes)
+            Crypto crypto) : base(unitOfWork, logger, repository, mapper, configuration, environment, filesPathes)
         {
             _crypto = crypto;
             _encryptionCode = configuration.GetSection("EncryptionCode").Value;

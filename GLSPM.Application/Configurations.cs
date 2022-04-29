@@ -26,12 +26,13 @@ namespace GLSPM.Application
             IConfiguration configuration,
             IWebHostEnvironment environment)
         {
-            services.ConfigureDB(configuration)
+            services.AddHttpContextAccessor()
+                    .ConfigureDB(configuration)
                     .ConfigEFCoreLayer()
                     .ConfigureFV()
                     .ComfigureCubesFW()
-                    .AddHttpContextAccessor()
-                    .ConfigureOptions<FilesPathes>()
+                    .Configure<FilesPathes>(configuration.GetSection("FilesPathes"))
+                    .AddAutoMapper(Assembly.GetCallingAssembly())
                     .ConfigureAppSerivces();
             return services;
         }

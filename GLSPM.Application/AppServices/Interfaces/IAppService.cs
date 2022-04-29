@@ -1,5 +1,9 @@
-﻿using GLSPM.Application.Dtos;
+﻿using AutoMapper;
+using GLSPM.Application.Dtos;
+using GLSPM.Domain;
 using GLSPM.Domain.Repositories;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,6 +18,10 @@ namespace GLSPM.Application.AppServices.Interfaces
         IUnitOfWork UnitOfWork { get; }
         IRepository<TEntity,TKey> Repository { get; }
         ILogger Logger { get; }
+        IMapper Mapper { get; }
+        IConfiguration Configuration { get; }
+        IWebHostEnvironment Environment { get; }
+        FilesPathes FilesPathes { get; }
         Task<TReadDto> GetAsync(TKey key);
         Task<PagedListDto<TReadDto>> GetListAsync(GetListDto input);
         Task<TReadDto> UpdateAsync(TKey key, TUpdateDto input);

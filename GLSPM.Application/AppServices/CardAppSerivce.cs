@@ -29,11 +29,10 @@ namespace GLSPM.Application.AppServices
             ILogger<AppServiceBase<Card, int, CardReadDto, CardCreateDto, CardUpdateDto>> logger,
             IRepository<Card, int> repository,
             IMapper mapper,
-            HttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
             IWebHostEnvironment environment,
             IOptions<FilesPathes> filesPathes,
-            Crypto crypto) : base(unitOfWork, logger, repository, mapper, httpContextAccessor, configuration, environment, filesPathes)
+            Crypto crypto) : base(unitOfWork, logger, repository, mapper,configuration, environment, filesPathes)
         {
             _crypto = crypto;
             _encryptionCode = configuration.GetSection("EncryptionCode").Value;

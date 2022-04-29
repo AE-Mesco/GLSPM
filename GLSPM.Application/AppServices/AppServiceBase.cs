@@ -23,7 +23,6 @@ namespace GLSPM.Application.AppServices
             ILogger<AppServiceBase<TEntity, TKey, TReadDto, TCreateDto, TUpdateDto>> logger,
             IRepository<TEntity, TKey> repository,
             IMapper mapper,
-            IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
             IWebHostEnvironment environment,
             IOptions<FilesPathes> filesPathes)
@@ -32,7 +31,6 @@ namespace GLSPM.Application.AppServices
             Logger = logger;
             Repository = repository;
             Mapper = mapper;
-            HttpContextAccessor = httpContextAccessor;
             Configuration = configuration;
             Environment = environment;
             FilesPathes = filesPathes.Value;
@@ -41,7 +39,6 @@ namespace GLSPM.Application.AppServices
 
         public IRepository<TEntity, TKey> Repository { get; }
         public IMapper Mapper { get; }
-        public IHttpContextAccessor HttpContextAccessor { get; }
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
         public FilesPathes FilesPathes { get; }
