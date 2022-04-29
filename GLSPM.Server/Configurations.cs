@@ -2,13 +2,25 @@
 using GLSPM.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Reflection;
 
 namespace GLSPM.Server
 {
     public static class Configurations
     {
-        
+        public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder)
+        {
+            //Read Configuration from appSettings
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+            //Initialize Logger
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
+            return builder;
+        }
 
         public static UserManager<ApplicationUser> SeedDefUsers(this UserManager<ApplicationUser> userManager)
         {

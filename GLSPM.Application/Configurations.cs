@@ -68,6 +68,7 @@ namespace GLSPM.Application
         {
             services.AddScoped(typeof(IAppService<,,,,>), typeof(AppServiceBase<,,,,>));
             services.AddScoped<ICardsAppService,CardAppSerivce>();
+            services.AddScoped<IPasswordsAppService, PasswordAppService>();
             return services;
         }
     }

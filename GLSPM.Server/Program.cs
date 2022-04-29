@@ -1,14 +1,30 @@
 using GLSPM.Application;
 using GLSPM.Application.EFCore.Repositories;
 using GLSPM.Server;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.AddSerilog();
+builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.ConfigureApplicationLayer(builder.Configuration,builder.Environment);
-var app = builder.Build();
+builder.Services.ConfigureApplicationLayer(builder.Configuration, builder.Environment);
+WebApplication app = null;
+try
+{
+    Log.Information("Application Starting.");
+    app = builder.Build();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "The Application failed to start.");
+    File.AppendAllText(Path.Combine(Environment.CurrentDirectory, "MescoOnlinePaymentError.txt"), ex.Message);
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
