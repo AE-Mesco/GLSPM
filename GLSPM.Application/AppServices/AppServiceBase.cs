@@ -68,14 +68,28 @@ namespace GLSPM.Application.AppServices
         public virtual async Task<SingleObjectResponse<TReadDto>> GetAsync(TKey key)
         {
             var data = await Repository.GetAsync(key);
-            var results = Mapper.Map<TReadDto>(data);
-            return new SingleObjectResponse<TReadDto>
+            if (data!=null)
             {
-                Success = true,
-                Message = "Item Found",
-                Data = results,
-                StatusCode = StatusCodes.Status200OK
-            };
+                var results = Mapper.Map<TReadDto>(data);
+                return new SingleObjectResponse<TReadDto>
+                {
+                    Success = true,
+                    Message = "Item Found",
+                    Data = results,
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            else
+            {
+               return new SingleObjectResponse<TReadDto>
+                {
+                    Success = false,
+                    Message = "Item Not Found",
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Error = "Couldn't find an entity realted to the passed id"
+                }; ;
+            }
+            
         }
 
         public virtual async Task<PagedListDto<TReadDto>> GetListAsync(GetListDto input)

@@ -46,6 +46,37 @@ namespace GLSPM.Server
             return builder;
         }
 
+        public static WebApplication Setup(this WebApplication app)
+        {
+            //seed the admin user
+            var userManager = app.Services.GetService<UserManager<ApplicationUser>>();
+            userManager.SeedDefUsers();
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseWebAssemblyDebugging();
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+            //swagger
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            });
+
+            app.UseHttpsRedirection();
+            //blazor
+            app.UseBlazorFrameworkFiles();
+            app.UseStaticFiles();
+            //routing
+            app.UseRouting();
+            app.MapRazorPages();
+            app.MapControllers();
+            app.MapFallbackToFile("index.html");
+            return app;
+        }
         public static UserManager<ApplicationUser> SeedDefUsers(this UserManager<ApplicationUser> userManager)
         {
             var admin = new ApplicationUser

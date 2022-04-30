@@ -17,6 +17,12 @@ using System.Security.Cryptography;
 using GLSPM.Application.AppServices.Interfaces;
 using GLSPM.Application.AppServices;
 using GLSPM.Domain;
+using GLSPM.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using GLSPM.Application.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GLSPM.Application
 {
@@ -29,6 +35,8 @@ namespace GLSPM.Application
             services.AddHttpContextAccessor()
                     .ConfigureDB(configuration)
                     .ConfigEFCoreLayer()
+                    .ConfigureIdentity()
+                    .ConfigureJwt(configuration)
                     .ConfigureFV()
                     .ComfigureCubesFW()
                     .Configure<FilesPathes>(configuration.GetSection("FilesPathes"))
@@ -36,7 +44,77 @@ namespace GLSPM.Application
                     .ConfigureAppSerivces();
             return services;
         }
+        public static IServiceCollection ConfigureIdentity(this IServiceCollection services)
+        {
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireDigit = true;
+                options.Password.RequireNonAlphanumeric = true;
+                //lockout
+                options.Lockout.DefaultLockoutTimeSpan = new TimeSpan(0, 5, 0);
+                options.Lockout.MaxFailedAccessAttempts = 4;
+                options.Lockout.AllowedForNewUsers = false;
+            })
+            .AddEntityFrameworkStores<GLSPMDBContext>()
+            .AddDefaultTokenProviders();
+            return services;
+        }
+        public static IServiceCollection ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtsettings = configuration.GetSection("Jwt");
+            var secretkey = jwtsettings.GetSection("Key").Value;
+            //using the bearer auth scheme
+            services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            //setting the jwt bearer token options
+            .AddJwtBearer(o =>
+            {
+                //configure response
+                o.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        //to skip the default logic and avoid using the default response
+                        context.HandleResponse();
+                        //custom response 
+                        context.Response.StatusCode = 401;
+                        await context.Response.WriteAsJsonAsync(new SingleObjectResponse<object>
+                        {
+                            Success = false,
+                            Message = "User is not authorized",
+                            StatusCode = 401,
+                            Error = new object[] { new { Message = "User is not authorized" } }
+                        });
+                    }
+                };
+                o.SaveToken = true;
+                o.RequireHttpsMetadata = false;
+                o.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    SaveSigninToken = true,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
+                    ValidIssuer = jwtsettings.GetSection("Issuer").Value,
+                    ValidAudience = jwtsettings.GetSection("Audience").Value,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretkey)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+            //registreation of the authentication service
+            services.AddScoped<IAuthenticationAppService,AuthenticationAppService>();
 
+            return services;
+        }
         public static IServiceCollection ConfigureFV(this IServiceCollection services)
         {
             services.AddControllers()

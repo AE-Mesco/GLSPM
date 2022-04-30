@@ -23,8 +23,20 @@ namespace GLSPM.Server.Controllers
         public async Task<IActionResult> Get([FromQuery]GetListDto input)
         {
             input.Sorting ??= nameof(PasswordReadDto.Title);
-            var data= await _passwordsAppService.GetListAsync(input);
-            return Ok(data);
+            var results= await _passwordsAppService.GetListAsync(input);
+            return Ok(results);
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var results = await _passwordsAppService.GetAsync(id);
+            return results.Success? Ok(results) : BadRequest(results);
+        }
+
+        public async Task<IActionResult> Create(PasswordCreateDto input)
+        {
+            var results=await _passwordsAppService.CreateAsync(input);
+            return results.Success ? Ok(results) : BadRequest(results);
         }
     }
 }
