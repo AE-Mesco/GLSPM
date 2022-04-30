@@ -4,12 +4,7 @@ using GLSPM.Server;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.AddSerilog();
-builder.Host.UseSerilog();
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
-builder.Services.ConfigureApplicationLayer(builder.Configuration, builder.Environment);
+builder.ConfigureBuilder();
 try
 {
     Log.Information("Application Starting.");
@@ -22,7 +17,11 @@ try
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
-
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    });
     app.UseHttpsRedirection();
 
     app.UseBlazorFrameworkFiles();

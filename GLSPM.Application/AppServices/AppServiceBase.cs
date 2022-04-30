@@ -44,12 +44,19 @@ namespace GLSPM.Application.AppServices
         public FilesPathes FilesPathes { get; }
         public ILogger Logger { get; }
 
-        public virtual async Task<TReadDto> CreateAsync(TCreateDto input)
+        public virtual async Task<SingleObjectResponse<TReadDto>> CreateAsync(TCreateDto input)
         {
             var data = Mapper.Map<TEntity>(input);
             data = await Repository.InsertAsync(data);
             await UnitOfWork.CommitAsync();
-            return Mapper.Map<TReadDto>(data);
+            var results= Mapper.Map<TReadDto>(data);
+            return new SingleObjectResponse<TReadDto>
+            {
+                Success=true,
+                Message="Item Created",
+                Data=results,
+                StatusCode= StatusCodes.Status201Created
+            };
         }
 
         public virtual async Task DeleteAsync(TKey key)
@@ -58,10 +65,17 @@ namespace GLSPM.Application.AppServices
             await UnitOfWork.CommitAsync();
         }
 
-        public virtual async Task<TReadDto> GetAsync(TKey key)
+        public virtual async Task<SingleObjectResponse<TReadDto>> GetAsync(TKey key)
         {
             var data = await Repository.GetAsync(key);
-            return Mapper.Map<TReadDto>(data);
+            var results = Mapper.Map<TReadDto>(data);
+            return new SingleObjectResponse<TReadDto>
+            {
+                Success = true,
+                Message = "Item Found",
+                Data = results,
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         public virtual async Task<PagedListDto<TReadDto>> GetListAsync(GetListDto input)
@@ -76,19 +90,37 @@ namespace GLSPM.Application.AppServices
                 data = await Repository.GetAllAsync(sorting: input.Sorting, skipCound: input.SkipCount.Value, input.MaxResults.Value);
             }
             var results = Mapper.Map<IReadOnlyList<TReadDto>>(data);
-            return new PagedListDto<TReadDto>(data.Count(), results);
+            return new PagedListDto<TReadDto>(data.Count(), results)
+            {
+                Message="Items Found",
+                StatusCode= StatusCodes.Status200OK,
+                Success=true,
+            };
         }
 
-        public virtual async Task<TReadDto> UpdateAsync(TKey key, TUpdateDto input)
+        public virtual async Task<SingleObjectResponse<TReadDto>> UpdateAsync(TKey key, TUpdateDto input)
         {
             if (await Repository.GetAsync(key) != null)
             {
                 var data = Mapper.Map<TEntity>(input);
                 await Repository.UpdateAsync(data);
                 await UnitOfWork.CommitAsync();
-                return Mapper.Map<TReadDto>(data);
+                var results= Mapper.Map<TReadDto>(data);
+                return new SingleObjectResponse<TReadDto>
+                {
+                    Success = true,
+                    Message = "Item Updated",
+                    Data = results,
+                    StatusCode = StatusCodes.Status202Accepted
+                };
             }
-            return default;
+            return new SingleObjectResponse<TReadDto>
+            {
+                Success = false,
+                Message = "Item Not Found",
+                StatusCode = StatusCodes.Status404NotFound,
+                Error="Couldn't find an entity realted to the passed id"
+            }; ;
         }
     }
 }

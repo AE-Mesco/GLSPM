@@ -59,14 +59,21 @@ namespace GLSPM.Application.AppServices
             }
         }
 
-        public async Task<IEnumerable<CardReadDto>> GetDeletedAsync()
+        public async Task<PagedListDto<CardReadDto>> GetDeletedAsync()
         {
             var dbset = await Repository.GetAsQueryableAsync();
 
             var data = await dbset.IgnoreQueryFilters()
                                   .Where(c => c.IsSoftDeleted)
                                   .ToArrayAsync();
-            return Mapper.Map<IEnumerable<CardReadDto>>(data);
+            var results= Mapper.Map<IReadOnlyList<CardReadDto>>(data);
+
+            return new PagedListDto<CardReadDto>(data.Count(), results)
+            {
+                StatusCode=StatusCodes.Status200OK,
+                Success=true,
+                Message="Items Found",
+            };
         }
 
         public async override Task<PagedListDto<CardReadDto>> GetListAsync(GetListDto input)
@@ -86,7 +93,12 @@ namespace GLSPM.Application.AppServices
                 cards = await Repository.GetAllAsync(input.Sorting, input.SkipCount.Value, input.MaxResults.Value);
             }
             var ressults = Mapper.Map<IReadOnlyList<CardReadDto>>(cards);
-            return new PagedListDto<CardReadDto>(cards.Count(), ressults);
+            return new PagedListDto<CardReadDto>(cards.Count(), ressults)
+            {
+                Success=true,
+                StatusCode=StatusCodes.Status200OK,
+                Message="Items Found"
+            };
         }
 
         public async Task<bool> IsDeleted(int key)
@@ -110,7 +122,7 @@ namespace GLSPM.Application.AppServices
             }
         }
 
-        public async Task<CardReadDto> UnMarkAsDeletedAsync(int key)
+        public async Task<SingleObjectResponse<CardReadDto>> UnMarkAsDeletedAsync(int key)
         {
             if (await IsDeleted(key))
             {
@@ -120,12 +132,25 @@ namespace GLSPM.Application.AppServices
                 card.DeleteDate = DateTime.Now;
                 card.IsSoftDeleted = false;
                 await UnitOfWork.CommitAsync();
-                return Mapper.Map<CardReadDto>(card);
+                var results= Mapper.Map<CardReadDto>(card);
+                return new SingleObjectResponse<CardReadDto>
+                {
+                    Success=true,
+                    StatusCode=StatusCodes.Status202Accepted,
+                    Data=results,
+                    Message="Item Was Restored"
+                };
             }
-            return null;
+            return new SingleObjectResponse<CardReadDto>
+            {
+                Success=false,
+                StatusCode=StatusCodes.Status404NotFound,
+                Message="Item Not Found",
+                Error="Couldn't find an entity related to the passed id"
+            };
         }
 
-        public async override Task<CardReadDto> UpdateAsync(int key, CardUpdateDto input)
+        public async override Task<SingleObjectResponse<CardReadDto>> UpdateAsync(int key, CardUpdateDto input)
         {
             var card = await Repository.GetAsync(key);
             if (card != null)
@@ -142,9 +167,22 @@ namespace GLSPM.Application.AppServices
 
                 await Repository.UpdateAsync(card);
                 await UnitOfWork.CommitAsync();
-                return Mapper.Map<CardReadDto>(card);
+                var results= Mapper.Map<CardReadDto>(card);
+                return new SingleObjectResponse<CardReadDto>
+                {
+                    Success = true,
+                    StatusCode = StatusCodes.Status202Accepted,
+                    Data = results,
+                    Message = "Item Updated"
+                };
             }
-            return null;
+            return new SingleObjectResponse<CardReadDto>
+            {
+                Success = false,
+                StatusCode = StatusCodes.Status404NotFound,
+                Message = "Item Not Found",
+                Error = "Couldn't find an entity related to the passed id"
+            };
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GLSPM.Application.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +10,8 @@ namespace GLSPM.Application.AppServices.Interfaces
     public interface ITrasherAppService<TEntity,TKey>
     {
         Task MarkAsDeletedAsync(TKey key);
-        Task<TEntity> UnMarkAsDeletedAsync(TKey key);
-        Task<IEnumerable<TEntity>> GetDeletedAsync();
+        Task<SingleObjectResponse<TEntity>> UnMarkAsDeletedAsync(TKey key);
+        Task<PagedListDto<TEntity>> GetDeletedAsync();
         Task<bool> IsDeleted(TKey key);
     }
 }

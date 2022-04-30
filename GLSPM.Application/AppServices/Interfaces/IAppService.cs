@@ -22,10 +22,10 @@ namespace GLSPM.Application.AppServices.Interfaces
         IConfiguration Configuration { get; }
         IWebHostEnvironment Environment { get; }
         FilesPathes FilesPathes { get; }
-        Task<TReadDto> GetAsync(TKey key);
+        Task<SingleObjectResponse<TReadDto>> GetAsync(TKey key);
         Task<PagedListDto<TReadDto>> GetListAsync(GetListDto input);
-        Task<TReadDto> UpdateAsync(TKey key, TUpdateDto input);
-        Task<TReadDto> CreateAsync(TCreateDto input);
+        Task<SingleObjectResponse<TReadDto>> UpdateAsync(TKey key, TUpdateDto input);
+        Task<SingleObjectResponse<TReadDto>> CreateAsync(TCreateDto input);
         Task DeleteAsync(TKey key);
     }
 }

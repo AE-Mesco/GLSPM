@@ -76,9 +76,14 @@ namespace GLSPM.Application.AppServices
                 passwords = await Repository.GetAllAsync(input.Sorting, input.SkipCount.Value, input.MaxResults.Value);
             }
             var ressults = Mapper.Map<IReadOnlyList<PasswordReadDto>>(passwords);
-            return new PagedListDto<PasswordReadDto>(passwords.Count(), ressults);
+            return new PagedListDto<PasswordReadDto>(passwords.Count(), ressults)
+            {
+                Success=true,
+                StatusCode=StatusCodes.Status200OK,
+                Message="Items Found"
+            };
         }
-        public async override Task<PasswordReadDto> UpdateAsync(int key, PasswordUpdateDto input)
+        public async override Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(int key, PasswordUpdateDto input)
         {
             var password = await Repository.GetAsync(key);
             if (password != null)
@@ -92,54 +97,86 @@ namespace GLSPM.Application.AppServices
 
                 await Repository.UpdateAsync(password);
                 await UnitOfWork.CommitAsync();
-                return Mapper.Map<PasswordReadDto>(password);
+                var results= Mapper.Map<PasswordReadDto>(password);
+                return new SingleObjectResponse<PasswordReadDto>
+                {
+                    Success=true,
+                    StatusCode=StatusCodes.Status202Accepted,
+                    Message="Item Updated",
+                    Data=results
+                };
             }
-            return null;
+            return new SingleObjectResponse<PasswordReadDto>
+            {
+                Success=false,
+                StatusCode=StatusCodes.Status200OK,
+                Message="Item Not Found",
+                Error="Couldn't find an item realted to the passed id"
+            };
         }
-        public async Task<IEnumerable<PasswordCreateDto>> GetDeletedAsync()
+        public async Task<PagedListDto<PasswordReadDto>> GetDeletedAsync()
         {
             var dbset = await Repository.GetAsQueryableAsync();
 
             var data = await dbset.IgnoreQueryFilters()
                                   .Where(c => c.IsSoftDeleted)
                                   .ToArrayAsync();
-            return Mapper.Map<IEnumerable<PasswordCreateDto>>(data);
+            var results= Mapper.Map<IReadOnlyList<PasswordReadDto>>(data);
+            return new PagedListDto<PasswordReadDto>(data.Count(), results)
+            {
+                Success=true,
+                StatusCode=StatusCodes.Status200OK,
+                Message="Items Found"
+            };
         }
 
         public async Task<bool> IsDeleted(int key)
         {
             var dbset = await Repository.GetAsQueryableAsync();
 
-            var card = await dbset.IgnoreQueryFilters()
+            var password = await dbset.IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.ID == key);
 
-            return card != null ? card.IsSoftDeleted : true;
+            return password != null ? password.IsSoftDeleted : true;
         }
 
         public async Task MarkAsDeletedAsync(int key)
         {
             if (!await IsDeleted(key))
             {
-                var card = await Repository.GetAsync(key);
-                card.DeleteDate = DateTime.Now;
-                card.IsSoftDeleted = true;
+                var password = await Repository.GetAsync(key);
+                password.DeleteDate = DateTime.Now;
+                password.IsSoftDeleted = true;
                 await UnitOfWork.CommitAsync();
             }
         }
 
-        public async Task<PasswordCreateDto> UnMarkAsDeletedAsync(int key)
+        public async Task<SingleObjectResponse<PasswordReadDto>> UnMarkAsDeletedAsync(int key)
         {
             if (await IsDeleted(key))
             {
                 var dbset = await Repository.GetAsQueryableAsync();
-                var card = await dbset.IgnoreQueryFilters()
+                var password = await dbset.IgnoreQueryFilters()
                     .FirstOrDefaultAsync(c => c.ID == key);
-                card.DeleteDate = DateTime.Now;
-                card.IsSoftDeleted = false;
+                password.DeleteDate = DateTime.Now;
+                password.IsSoftDeleted = false;
                 await UnitOfWork.CommitAsync();
-                return Mapper.Map<PasswordCreateDto>(card);
+                var results= Mapper.Map<PasswordReadDto>(password);
+                return new SingleObjectResponse<PasswordReadDto>
+                {
+                    Success = true,
+                    StatusCode = StatusCodes.Status202Accepted,
+                    Message = "Item Restored",
+                    Data = results
+                };
             }
-            return null;
+            return new SingleObjectResponse<PasswordReadDto>
+            {
+                Success = false,
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Item Not Found",
+                Error = "Couldn't find an item realted to the passed id"
+            };
         }
     }
 }
