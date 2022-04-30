@@ -45,4 +45,28 @@ namespace GLSPM.Application.Dtos.Passwords
             destination.Password = _crypto.DecryptAes(source.EncriptedPassword, _encryptionCode).Result;
         }
     }
+
+    public class PasswordReadDtoToPasswordMappingAction : IMappingAction<PasswordReadDto, Password>
+    {
+        private readonly Crypto _crypto;
+        private readonly IConfiguration _configuration;
+        private readonly FilesPathes _filesPathes;
+        private readonly string _encryptionCode;
+
+        public PasswordReadDtoToPasswordMappingAction(Crypto crypto,
+            IConfiguration configuration,
+            IOptions<FilesPathes> filesPathes)
+        {
+            _crypto = crypto;
+            _configuration = configuration;
+            _filesPathes = filesPathes.Value;
+            _encryptionCode = configuration.GetSection("EncryptionCode").Value;
+
+        }
+
+        public void Process(PasswordReadDto source, Password destination, ResolutionContext context)
+        {
+           destination.EncriptedPassword=_crypto.EncryptAes(source.Password, _encryptionCode).Result;
+        }
+    }
 }

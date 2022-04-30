@@ -40,7 +40,7 @@ namespace GLSPM.Application
                     .ConfigureFV()
                     .ComfigureCubesFW()
                     .Configure<FilesPathes>(configuration.GetSection("FilesPathes"))
-                    .AddAutoMapper(Assembly.GetCallingAssembly())
+                    .AddAutoMapper(typeof(GLSPMMappingProfile))
                     .ConfigureAppSerivces();
             return services;
         }

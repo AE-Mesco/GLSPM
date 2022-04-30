@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GLSPM.Application.Dtos.Cards;
+using GLSPM.Application.Dtos.Passwords;
 using GLSPM.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,15 +15,27 @@ namespace GLSPM.Application.Dtos
         public GLSPMMappingProfile()
         {
             RegisterCards();
+            RegisterPasswords();
         }
 
         private void RegisterCards()
         {
-            CreateMap<CardCreateDto, Card>();
+            CreateMap<CardCreateDto, Card>()
+                .BeforeMap<CardCreateDtoMappingAction>();
             CreateMap<Card, CardReadDto>()
                 .BeforeMap<CardToCardReadDtoMappingAction>()
                 .ReverseMap()
                 .BeforeMap<CardReadDtoToCardMappingAction>();
+        }
+
+        private void RegisterPasswords()
+        {
+            CreateMap<Password, PasswordReadDto>()
+                .BeforeMap<PasswordToPasswordReadDtoMappingAction>()
+                .ReverseMap()
+                .BeforeMap<PasswordReadDtoToPasswordMappingAction>();
+            CreateMap<PasswordCreateDto, Password>()
+                .BeforeMap<PasswordCreateDtoToPasswordMappingAction>();
         }
     }
 }

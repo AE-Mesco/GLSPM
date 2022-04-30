@@ -30,6 +30,8 @@ namespace GLSPM.Application.EFCore
                 config.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserID);
+
+                config.HasQueryFilter(c => c.IsSoftDeleted == false);
             });
 
             builder.Entity<Password>(config =>
@@ -37,6 +39,9 @@ namespace GLSPM.Application.EFCore
                 config.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserID);
+
+                config.HasQueryFilter(p => p.IsSoftDeleted == false);
+
             });
 
             builder.ApplyConfiguration(new IdentityRoleConfig());

@@ -49,8 +49,11 @@ namespace GLSPM.Server
         public static WebApplication Setup(this WebApplication app)
         {
             //seed the admin user
-            var userManager = app.Services.GetService<UserManager<ApplicationUser>>();
-            userManager.SeedDefUsers();
+            using (var scope = app.Services.CreateScope())
+            {
+                var userManager = (UserManager<ApplicationUser>)scope.ServiceProvider.GetService(typeof(UserManager<ApplicationUser>));
+                userManager.SeedDefUsers();
+            }
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -90,6 +93,7 @@ namespace GLSPM.Server
                 PhoneNumber = "201120797422",
                 PhoneNumberConfirmed = true,
                 LockoutEnabled = false,
+                ImagePath= "./files/imgs/userimg.png"
             };
             var password = "Admin@2022";
             if (userManager.FindByIdAsync("1").Result==null)

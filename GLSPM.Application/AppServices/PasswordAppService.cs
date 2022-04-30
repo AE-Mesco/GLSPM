@@ -66,7 +66,8 @@ namespace GLSPM.Application.AppServices
             {
                 input.Filter = input.Filter.ToLower();
                 var dbset = await Repository.GetAsQueryableAsync();
-                passwords = dbset.Where(c => c.Title.ToLower().Contains(input.Filter))
+                passwords = dbset.Where(c => c.Title.ToLower().Contains(input.Filter)||
+                c.Source.ToLower().Contains(input.Filter))
                              .OrderBy(input.Sorting)
                              .Skip(input.SkipCount.Value)
                              .Take(input.MaxResults.Value);
@@ -137,7 +138,7 @@ namespace GLSPM.Application.AppServices
             var password = await dbset.IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.ID == key);
 
-            return password != null ? password.IsSoftDeleted : true;
+            return password != null ? password.IsSoftDeleted : false;
         }
 
         public async Task MarkAsDeletedAsync(int key)
@@ -161,7 +162,7 @@ namespace GLSPM.Application.AppServices
                 password.DeleteDate = DateTime.Now;
                 password.IsSoftDeleted = false;
                 await UnitOfWork.CommitAsync();
-                var results= Mapper.Map<PasswordReadDto>(password);
+                var results = Mapper.Map<PasswordReadDto>(password);
                 return new SingleObjectResponse<PasswordReadDto>
                 {
                     Success = true,
@@ -173,7 +174,7 @@ namespace GLSPM.Application.AppServices
             return new SingleObjectResponse<PasswordReadDto>
             {
                 Success = false,
-                StatusCode = StatusCodes.Status200OK,
+                StatusCode = StatusCodes.Status404NotFound,
                 Message = "Item Not Found",
                 Error = "Couldn't find an item realted to the passed id"
             };
