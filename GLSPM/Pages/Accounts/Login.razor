@@ -19,8 +19,8 @@
                 <MudTextField @bind-Value="model.Password"
                               For="@(() => model.Password)"
                               Immediate="true"
-                              Label="Password" 
-                              InputType="InputType.Password"/>
+                              Label="Password"
+                              InputType="InputType.Password" />
             </MudCardContent>
         </MudForm>
         <MudCardActions>
@@ -47,8 +47,11 @@
         {
             var res = await AccountsService.Login(model);
             if (res.Success)
+            {
                 Snackbar.Add("Login Success");
-                else
+                NavigationManager.NavigateTo("/");
+            }
+            else
                 Snackbar.Add("Login faild");
         }
     }

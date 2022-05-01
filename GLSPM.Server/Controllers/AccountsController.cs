@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using HeyRed.Mime;
 using GLSPM.Domain.Dtos.Identity;
 using GLSPM.Domain.Dtos;
-
+using FileClass = System.IO.File;
 namespace GLSPM.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -98,7 +98,6 @@ namespace GLSPM.Server.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("UserAvatar/{userID}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -107,8 +106,11 @@ namespace GLSPM.Server.Controllers
             var user = await _userManager.FindByIdAsync(userID);
             if (user != null)
             {
-                user.ImagePath ??= Path.GetFullPath("./Files/Imgs/Userimage.png");
-                return PhysicalFile(user.ImagePath, MimeTypesMap.GetMimeType(user.ImagePath), $"avatar{Path.GetExtension(user.ImagePath)}");
+                user.ImagePath ??= Path.GetFullPath("./Files/Imgs/userimg.png");
+                if (FileClass.Exists(user.ImagePath))
+                {
+                    return PhysicalFile(user.ImagePath, MimeTypesMap.GetMimeType(user.ImagePath), $"avatar{Path.GetExtension(user.ImagePath)}");
+                }
             }
             return NotFound(new SingleObjectResponse<object>
             {

@@ -1,9 +1,45 @@
-﻿<MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" TransformOrigin="Origin.BottomCenter">
-    <MudMenuItem>
-        <MudLink Href="/login">Login</MudLink>
-    </MudMenuItem>
-    <MudMenuItem>
-        <MudLink Href="/register">New Account</MudLink>
-    </MudMenuItem>
+﻿@inject IAccountsService AccountsService
+
+<MudMenu TransformOrigin="Origin.BottomCenter">
+    <ActivatorContent>
+        @if (AccountsService.IsLogged)
+        {
+            <MudAvatar Image="@AccountsService.User.Avatar" Size="Size.Small"/>
+        }
+        else
+        {
+            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+        }
+    </ActivatorContent>
+    <ChildContent>
+        @if (!AccountsService.IsLogged)
+        {
+            <MudMenuItem>
+                <MudLink Href="/login">Login</MudLink>
+            </MudMenuItem>
+        }
+        else
+        {
+            <MudMenuItem>
+                <MudLink Href="#" @onclick="(async ()=>await OnClickLogout())">Logout</MudLink>
+            </MudMenuItem>
+        }
+        <MudMenuItem>
+            <MudLink Href="/register">New Account</MudLink>
+        </MudMenuItem>
+    </ChildContent>
+
 
 </MudMenu>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        AccountsService.UserLoginChange += StateHasChanged;
+    }
+    async Task OnClickLogout()
+    {
+        await AccountsService.Logout();
+        NavigationManager.NavigateTo("/");
+    }
+}

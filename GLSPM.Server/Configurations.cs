@@ -70,6 +70,9 @@ namespace GLSPM.Server
             });
 
             app.UseHttpsRedirection();
+            //auth
+            app.UseAuthentication();
+            app.UseAuthorization();
             //blazor
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
@@ -93,7 +96,7 @@ namespace GLSPM.Server
                 PhoneNumber = "201120797422",
                 PhoneNumberConfirmed = true,
                 LockoutEnabled = false,
-                ImagePath= "./files/imgs/userimg.png"
+                ImagePath= Path.GetFullPath("./files/imgs/userimg.png") 
             };
             var password = "Admin@2022";
             if (userManager.FindByIdAsync("1").Result==null)
