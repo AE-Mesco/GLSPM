@@ -1,7 +1,10 @@
-﻿using GLSPM.Application.Dtos.Identity;
+﻿using Abp.Web.Http;
+using GLSPM.Application.Dtos.Identity;
+using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Dtos.Identity;
 using GLSPM.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +26,8 @@ namespace GLSPM.Application.AppServices.Interfaces
         Task<bool> ValidateUser(LoginUserDto user);
         Task<bool> ValidateUser(string useremail);
         Task<TokenModel> CreateUserToken(string oldtoken = null);
+        Task<LoginResponseDto> CreateLoginResponse(ControllerBase controller);
         ApplicationUser User { get; }
+        Task<SingleObjectResponse<object>> CreateNewUser(RegisterUserDto input);
     }
 }

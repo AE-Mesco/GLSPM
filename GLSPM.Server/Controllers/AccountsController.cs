@@ -30,9 +30,33 @@ namespace GLSPM.Server.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register()
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Register([FromForm] RegisterUserDto input)
         {
-            return Ok();
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("invalid model passed.");
+                var response = new SingleObjectResponse<object>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "invalid model passed.",
+                    Error = ModelState
+                };
+                return BadRequest(response);
+            }
+            var results = await _authenticationAppService.CreateNewUser(input);
+            switch (results.StatusCode)
+            {
+                case 400:
+                case 406:
+                    return BadRequest(results);
+                default:
+                    return Created("", results);
+
+            }
         }
 
         [HttpPost("Login")]
@@ -71,21 +95,7 @@ namespace GLSPM.Server.Controllers
                 _logger.LogInformation("User logged");
                 _logger.LogInformation("Attempting to preparing the response...");
                 //preparing the user data
-                var authUser = _authenticationAppService.User;
-                var loginresponse = new LoginResponseDto()
-                {
-                    UserID = authUser.Id,
-                    Email = authUser.Email,
-                    Username = authUser.UserName,
-                    Avatar = Url.Action(nameof(UserAvatar), "Accounts", new { userid = authUser.Id }, Request.Scheme)
-                };
-                loginresponse.Roles = await _userManager.GetRolesAsync(authUser);
-                loginresponse.IsAppAdmin = loginresponse.Roles.Contains("Admin");
-                _logger.LogInformation("User data is ready");
-                //preparing and setting the token model
-                var tokenmodel = await _authenticationAppService.CreateUserToken();
-                loginresponse.Token = tokenmodel.Token;
-                loginresponse.TokenExpirationDate = tokenmodel.Expiration;
+                var loginresponse = await _authenticationAppService.CreateLoginResponse(this);
                 _logger.LogInformation("Token is ready");
                 var response = new SingleObjectResponse<LoginResponseDto>
                 {

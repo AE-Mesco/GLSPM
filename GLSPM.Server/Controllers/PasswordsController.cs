@@ -2,6 +2,7 @@
 using GLSPM.Application.Dtos;
 using GLSPM.Application.Dtos.Passwords;
 using GLSPM.Domain.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace GLSPM.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class PasswordsController : ControllerBase
     {
         private readonly ILogger<PasswordsController> _logger;

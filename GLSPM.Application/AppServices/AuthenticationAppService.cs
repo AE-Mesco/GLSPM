@@ -1,8 +1,12 @@
-﻿using GLSPM.Application.AppServices.Interfaces;
+﻿using Abp.Web.Http;
+using GLSPM.Application.AppServices.Interfaces;
 using GLSPM.Application.Dtos.Identity;
+using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Dtos.Identity;
 using GLSPM.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -151,6 +155,76 @@ namespace GLSPM.Application.AppServices
                 signingCredentials: credentials,
                 expires: lifetime);
             return token;
+        }
+
+        public async Task<LoginResponseDto> CreateLoginResponse(ControllerBase controller)
+        {
+            var loginresponse = new LoginResponseDto()
+            {
+                UserID = User.Id,
+                Email = User.Email,
+                Username = User.UserName,
+                Avatar = controller.Url.Action("UserAvatar", "Accounts", new { userid = User.Id }, controller.Request.Scheme)
+            };
+            loginresponse.Roles = await _userManager.GetRolesAsync(User);
+            loginresponse.IsAppAdmin = loginresponse.Roles.Contains("Admin");
+            _logger.LogInformation("User data is ready");
+            //preparing and setting the token model
+            var tokenmodel = await CreateUserToken();
+            loginresponse.Token = tokenmodel.Token;
+            loginresponse.TokenExpirationDate = tokenmodel.Expiration;
+            return loginresponse;
+        }
+
+        public async Task<SingleObjectResponse<object>> CreateNewUser(RegisterUserDto input)
+        {
+            var alreadyExists = await _userManager.FindByEmailAsync(input.Email) ?? await _userManager.FindByNameAsync(input.Username);
+            if (alreadyExists != null)
+            {
+                return new SingleObjectResponse<object>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status406NotAcceptable,
+                    Message = "User already exists"
+                };
+            }
+            var user = new ApplicationUser
+            {
+                UserName = input.Username,
+                Email = input.Email,
+            };
+            if (input.Avatar != null)
+            {
+                var filepath = Path.GetFullPath($"./Files/Imgs/{DateTime.Now.ToFileTime()}{Path.GetExtension(input.Avatar.FileName)}");
+                using (FileStream avatartstream = new FileStream(filepath, FileMode.Create))
+                {
+                    await input.Avatar.CopyToAsync(avatartstream);
+                    await avatartstream.FlushAsync();
+                    user.ImagePath = filepath;
+                }
+            }
+            else
+                user.ImagePath = Path.GetFullPath($"./Files/Imgs/userimg.png");
+
+            var userCreation = await _userManager.CreateAsync(user, input.Password);
+            if (userCreation.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, "Admin");
+                return new SingleObjectResponse<object>
+                {
+                    Success = true,
+                    StatusCode = StatusCodes.Status201Created,
+                    Message = "User Created"
+                };
+            }
+            else
+                return new SingleObjectResponse<object>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Couldn't create the user",
+                    Error = userCreation.Errors
+                };
         }
     }
 }
