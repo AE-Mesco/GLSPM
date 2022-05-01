@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GLSPM.Application.Dtos;
 using GLSPM.Domain;
+using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

@@ -1,4 +1,5 @@
 ﻿using GLSPM.Application.Dtos.Identity;
+using GLSPM.Domain.Dtos.Identity;
 using GLSPM.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System;

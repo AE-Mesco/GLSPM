@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using HeyRed.Mime;
+using GLSPM.Domain.Dtos.Identity;
+using GLSPM.Domain.Dtos;
+
 namespace GLSPM.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -69,21 +72,28 @@ namespace GLSPM.Server.Controllers
                 _logger.LogInformation("Attempting to preparing the response...");
                 //preparing the user data
                 var authUser = _authenticationAppService.User;
-                var response = new LoginResponseDto()
+                var loginresponse = new LoginResponseDto()
                 {
                     UserID = authUser.Id,
                     Email = authUser.Email,
                     Username = authUser.UserName,
                     Avatar = Url.Action(nameof(UserAvatar), "Accounts", new { userid = authUser.Id }, Request.Scheme)
                 };
-                response.Roles = await _userManager.GetRolesAsync(authUser);
-                response.IsAppAdmin = response.Roles.Contains("Admin");
+                loginresponse.Roles = await _userManager.GetRolesAsync(authUser);
+                loginresponse.IsAppAdmin = loginresponse.Roles.Contains("Admin");
                 _logger.LogInformation("User data is ready");
                 //preparing and setting the token model
                 var tokenmodel = await _authenticationAppService.CreateUserToken();
-                response.Token = tokenmodel.Token;
-                response.TokenExpirationDate = tokenmodel.Expiration;
+                loginresponse.Token = tokenmodel.Token;
+                loginresponse.TokenExpirationDate = tokenmodel.Expiration;
                 _logger.LogInformation("Token is ready");
+                var response = new SingleObjectResponse<LoginResponseDto>
+                {
+                    Success = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Login Success",
+                    Data = loginresponse
+                };
                 return Ok(response);
             }
         }

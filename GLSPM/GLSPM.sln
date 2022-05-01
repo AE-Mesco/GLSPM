@@ -5,16 +5,16 @@ VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLSPM.Client", "GLSPM.Client.csproj", "{F1B6BD70-09AE-4E48-B817-85C1109F85A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLSPM.Server", "..\GLSPM.Server\GLSPM.Server.csproj", "{75F771F3-44F5-4237-A10A-2FD354E8DF0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLSPM.Server", "..\GLSPM.Server\GLSPM.Server.csproj", "{75F771F3-44F5-4237-A10A-2FD354E8DF0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLSPM.Domain", "..\GLSPM.Shared\GLSPM.Domain.csproj", "{52E0504A-4F5C-4D1B-A056-E94AFC831DFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLSPM.Domain", "..\GLSPM.Shared\GLSPM.Domain.csproj", "{52E0504A-4F5C-4D1B-A056-E94AFC831DFF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2C934B67-6AD8-4F8E-9332-37D938779823}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLSPM.Application", "..\GLSPM.Application\GLSPM.Application.csproj", "{AD07B5A7-B361-48FE-A91D-A7BFCC5B71DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLSPM.Application", "..\GLSPM.Application\GLSPM.Application.csproj", "{AD07B5A7-B361-48FE-A91D-A7BFCC5B71DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

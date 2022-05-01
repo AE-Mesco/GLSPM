@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using GLSPM.Application.Dtos;
 using Microsoft.IdentityModel.Tokens;
+using GLSPM.Domain.Dtos;
 
 namespace GLSPM.Application
 {

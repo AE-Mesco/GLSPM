@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using GLSPM.Domain;
+using GLSPM.Domain.Dtos;
 
 namespace GLSPM.Application.AppServices
 {

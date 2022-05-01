@@ -1,4 +1,5 @@
 ﻿using GLSPM.Application.Dtos;
+using GLSPM.Domain.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;

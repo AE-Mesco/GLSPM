@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using GLSPM.Domain.Dtos.Identity;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,6 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.Dtos.Identity
 {
-    public class RegisterUserDto
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
-        public IFormFile? Avatar { get; set; }
-    }
-
     public class RegisterUserDtoValidator:AbstractValidator<RegisterUserDto>
     {
         public RegisterUserDtoValidator()

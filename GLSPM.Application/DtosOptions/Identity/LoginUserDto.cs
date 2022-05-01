@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using GLSPM.Domain.Dtos.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,14 +9,6 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.Dtos.Identity
 {
-    public class LoginUserDto
-    {
-        [Required]
-        public string Username { get; set; }
-        [Required]
-        public string Password { get; set; }
-    }
-
     public class LoginUserDtoValidtor : AbstractValidator<LoginUserDto>
     {
         public LoginUserDtoValidtor()

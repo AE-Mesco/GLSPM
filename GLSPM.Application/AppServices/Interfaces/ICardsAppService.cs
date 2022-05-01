@@ -1,5 +1,6 @@
 ﻿using GLSPM.Application.Dtos;
 using GLSPM.Application.Dtos.Cards;
+using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Entities;
 using System;
 using System.Collections.Generic;

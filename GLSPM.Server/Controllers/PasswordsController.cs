@@ -1,6 +1,7 @@
 ﻿using GLSPM.Application.AppServices.Interfaces;
 using GLSPM.Application.Dtos;
 using GLSPM.Application.Dtos.Passwords;
+using GLSPM.Domain.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

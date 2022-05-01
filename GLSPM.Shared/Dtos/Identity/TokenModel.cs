@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GLSPM.Application.Dtos.Identity
+namespace GLSPM.Domain.Dtos.Identity
 {
     public class TokenModel
     {

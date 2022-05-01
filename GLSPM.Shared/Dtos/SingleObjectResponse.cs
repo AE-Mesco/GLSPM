@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GLSPM.Application.Dtos
+namespace GLSPM.Domain.Dtos
 {
     public class SingleObjectResponse<TData>
     {

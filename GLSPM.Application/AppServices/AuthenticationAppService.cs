@@ -1,5 +1,6 @@
 ﻿using GLSPM.Application.AppServices.Interfaces;
 using GLSPM.Application.Dtos.Identity;
+using GLSPM.Domain.Dtos.Identity;
 using GLSPM.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -98,7 +99,7 @@ namespace GLSPM.Application.AppServices
 
         public async Task<bool> ValidateUser(LoginUserDto input)
         {
-            appuser = await _userManager.FindByNameAsync(input.Username);
+            appuser = await _userManager.FindByNameAsync(input.Username) ?? await _userManager.FindByEmailAsync(input.Username);
             return (appuser != null && await _userManager.CheckPasswordAsync(appuser, input.Password));
         }
 
