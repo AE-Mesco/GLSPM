@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using GLSPM.Domain;
 using GLSPM.Domain.Dtos;
+using GLSPM.Application.Helpers;
 
 namespace GLSPM.Application.AppServices
 {
@@ -33,7 +34,9 @@ namespace GLSPM.Application.AppServices
             IConfiguration configuration,
             IWebHostEnvironment environment,
             IOptions<FilesPathes> filesPathes,
-            Crypto crypto) : base(unitOfWork, logger, repository, mapper,configuration, environment, filesPathes)
+            IUriAppService uriAppService,
+            IHttpContextAccessor httpContextAccessor,
+            Crypto crypto) : base(unitOfWork, logger, repository, mapper,configuration, environment, filesPathes, uriAppService, httpContextAccessor)
         {
             _crypto = crypto;
             _encryptionCode = configuration.GetSection("EncryptionCode").Value;
@@ -60,24 +63,22 @@ namespace GLSPM.Application.AppServices
             }
         }
 
-        public async Task<PagedListDto<CardReadDto>> GetDeletedAsync()
+        public async Task<MultiObjectsResponse<IEnumerable<CardReadDto>>> GetDeletedAsync(PaginationParametersBase pagination)
         {
             var dbset = await Repository.GetAsQueryableAsync();
 
             var data = await dbset.IgnoreQueryFilters()
                                   .Where(c => c.IsSoftDeleted)
                                   .ToArrayAsync();
-            var results= Mapper.Map<IReadOnlyList<CardReadDto>>(data);
-
-            return new PagedListDto<CardReadDto>(data.Count(), results)
-            {
-                StatusCode=StatusCodes.Status200OK,
-                Success=true,
-                Message="Items Found",
-            };
+            var results = Mapper.Map<IEnumerable<CardReadDto>>(data);
+            var response = PaginationHelper.CreatePagedReponse(results, pagination, data.Count(), UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
+            response.Success = true;
+            response.Message = "Items Found";
+            response.StatusCode = StatusCodes.Status200OK;
+            return response;
         }
 
-        public async override Task<PagedListDto<CardReadDto>> GetListAsync(GetListDto input)
+        public async override Task<MultiObjectsResponse<IEnumerable<CardReadDto>>> GetListAsync(GetListDto input)
         {
             IEnumerable<Card> cards;
             if (!string.IsNullOrWhiteSpace(input.Filter))
@@ -86,20 +87,20 @@ namespace GLSPM.Application.AppServices
                 var dbset = await Repository.GetAsQueryableAsync();
                 cards = dbset.Where(c => c.Title.ToLower().Contains(input.Filter))
                              .OrderBy(input.Sorting)
-                             .Skip(input.SkipCount.Value)
-                             .Take(input.MaxResults.Value);
+                             .Skip(input.SkippedData)
+                             .Take(input.PageSize);
             }
             else
             {
-                cards = await Repository.GetAllAsync(input.Sorting, input.SkipCount.Value, input.MaxResults.Value);
+                cards =await Repository.GetAllAsync(input.Sorting, input.SkippedData, input.PageSize);
             }
-            var ressults = Mapper.Map<IReadOnlyList<CardReadDto>>(cards);
-            return new PagedListDto<CardReadDto>(cards.Count(), ressults)
-            {
-                Success=true,
-                StatusCode=StatusCodes.Status200OK,
-                Message="Items Found"
-            };
+            var getAllQuery = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: 0, int.MaxValue);
+            var results = Mapper.Map<IEnumerable<CardReadDto>>(cards);
+            var response = PaginationHelper.CreatePagedReponse(results, input, getAllQuery.Count(), UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
+            response.Success = true;
+            response.Message = "Items Found";
+            response.StatusCode = StatusCodes.Status200OK;
+            return response;
         }
 
         public async Task<bool> IsDeleted(int key)

@@ -19,6 +19,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GLSPM.Domain.Dtos;
+using GLSPM.Domain.Dtos.Passwords;
+using GLSPM.Application.Helpers;
 
 namespace GLSPM.Application.AppServices
 {
@@ -34,7 +36,9 @@ namespace GLSPM.Application.AppServices
             IConfiguration configuration,
             IWebHostEnvironment environment,
             IOptions<FilesPathes> filesPathes,
-            Crypto crypto) : base(unitOfWork, logger, repository, mapper, configuration, environment, filesPathes)
+            IUriAppService uriAppService,
+            IHttpContextAccessor httpContextAccessor,
+            Crypto crypto) : base(unitOfWork, logger, repository, mapper, configuration, environment, filesPathes, uriAppService, httpContextAccessor)
         {
             _crypto = crypto;
             _encryptionCode = configuration.GetSection("EncryptionCode").Value;
@@ -60,31 +64,32 @@ namespace GLSPM.Application.AppServices
                 }
             }
         }
-        public async override Task<PagedListDto<PasswordReadDto>> GetListAsync(GetListDto input)
+        public async override Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetListAsync(GetListDto input)
         {
             IEnumerable<Password> passwords;
             if (!string.IsNullOrWhiteSpace(input.Filter))
             {
                 input.Filter = input.Filter.ToLower();
                 var dbset = await Repository.GetAsQueryableAsync();
-                passwords = dbset.Where(c => c.Title.ToLower().Contains(input.Filter)||
+                passwords = dbset.Where(c => c.Title.ToLower().Contains(input.Filter) ||
                 c.Source.ToLower().Contains(input.Filter))
                              .OrderBy(input.Sorting)
-                             .Skip(input.SkipCount.Value)
-                             .Take(input.MaxResults.Value);
+                             .Skip(input.SkippedData)
+                             .Take(input.PageSize);
             }
             else
             {
-                passwords = await Repository.GetAllAsync(input.Sorting, input.SkipCount.Value, input.MaxResults.Value);
+                passwords = await Repository.GetAllAsync(input.Sorting, input.SkippedData, input.PageSize);
             }
-            var ressults = Mapper.Map<IReadOnlyList<PasswordReadDto>>(passwords);
-            return new PagedListDto<PasswordReadDto>(passwords.Count(), ressults)
-            {
-                Success=true,
-                StatusCode=StatusCodes.Status200OK,
-                Message="Items Found"
-            };
+            var getAllQuery = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: 0, int.MaxValue);
+            var results = Mapper.Map<IEnumerable<PasswordReadDto>>(passwords);
+            var response = PaginationHelper.CreatePagedReponse(results, input, getAllQuery.Count(), UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
+            response.Success = true;
+            response.Message = "Items Found";
+            response.StatusCode = StatusCodes.Status200OK;
+            return response;
         }
+
         public async override Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(int key, PasswordUpdateDto input)
         {
             var password = await Repository.GetAsync(key);
@@ -99,37 +104,36 @@ namespace GLSPM.Application.AppServices
 
                 await Repository.UpdateAsync(password);
                 await UnitOfWork.CommitAsync();
-                var results= Mapper.Map<PasswordReadDto>(password);
+                var results = Mapper.Map<PasswordReadDto>(password);
                 return new SingleObjectResponse<PasswordReadDto>
                 {
-                    Success=true,
-                    StatusCode=StatusCodes.Status202Accepted,
-                    Message="Item Updated",
-                    Data=results
+                    Success = true,
+                    StatusCode = StatusCodes.Status202Accepted,
+                    Message = "Item Updated",
+                    Data = results
                 };
             }
             return new SingleObjectResponse<PasswordReadDto>
             {
-                Success=false,
-                StatusCode=StatusCodes.Status200OK,
-                Message="Item Not Found",
-                Error="Couldn't find an item realted to the passed id"
+                Success = false,
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Item Not Found",
+                Error = "Couldn't find an item realted to the passed id"
             };
         }
-        public async Task<PagedListDto<PasswordReadDto>> GetDeletedAsync()
+        public async Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetDeletedAsync(PaginationParametersBase pagination)
         {
             var dbset = await Repository.GetAsQueryableAsync();
 
             var data = await dbset.IgnoreQueryFilters()
                                   .Where(c => c.IsSoftDeleted)
                                   .ToArrayAsync();
-            var results= Mapper.Map<IReadOnlyList<PasswordReadDto>>(data);
-            return new PagedListDto<PasswordReadDto>(data.Count(), results)
-            {
-                Success=true,
-                StatusCode=StatusCodes.Status200OK,
-                Message="Items Found"
-            };
+            var results = Mapper.Map<IEnumerable<PasswordReadDto>>(data);
+            var response = PaginationHelper.CreatePagedReponse(results, pagination, data.Count(), UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
+            response.Success = true;
+            response.Message = "Items Found";
+            response.StatusCode = StatusCodes.Status200OK;
+            return response;
         }
 
         public async Task<bool> IsDeleted(int key)

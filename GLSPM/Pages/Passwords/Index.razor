@@ -1,9 +1,45 @@
 ﻿@page "/Passwords"
 @attribute [Authorize]
-<h1>
-    passwords
-</h1>
 
+<div class="d-flex flex-wrap">
+    <MudBadge Content="activebadge" Color="Color.Primary" Overlap="true" Class="mx-6 my-4">
+        <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
+            Passwords
+        </MudText>
+    </MudBadge>
+    <MudAutocomplete T="string" Label="Search Active Passwords" Style="margin-bottom:20px"
+                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
+</div>
+
+
+<div class="d-flex gap-5 flex-wrap">
+    @for (var i = 0; i < num; i++)
+    {
+        <MudCard Class="card">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Istra Croatia</MudText>
+                    <MudText Typo="Typo.body2">Peninsula in Europe</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardMedia Image="/imgs/loading.gif" Height="100" />
+            <MudCardContent>
+                <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
+                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Default" />
+            </MudCardActions>
+        </MudCard>
+    }
+</div>
+<div class="d-flex flex-column align-center">
+    <MudPagination ShowFirstButton="true" ShowLastButton="true" Count="11" Class="mt-4" />
+</div>
 @code {
-
+    string activebadge = "Active";
+    int num = 10;
 }

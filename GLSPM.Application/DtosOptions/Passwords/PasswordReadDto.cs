@@ -2,6 +2,7 @@
 using CubesFramework.Security;
 using FluentValidation;
 using GLSPM.Domain;
+using GLSPM.Domain.Dtos.Passwords;
 using GLSPM.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -14,15 +15,6 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.Dtos.Passwords
 {
-    public class PasswordReadDto : CriticalEntityBase<int, string>
-    {
-        [Required]
-        public string Username { get; set; }
-        [Required]
-        public string Password { get; set; }
-        public string? Source { get; set; }
-    }
-
     public class PasswordToPasswordReadDtoMappingAction : IMappingAction<Password, PasswordReadDto>
     {
         private readonly Crypto _crypto;

@@ -12,7 +12,7 @@ namespace GLSPM.Application.AppServices.Interfaces
     {
         Task MarkAsDeletedAsync(TKey key);
         Task<SingleObjectResponse<TEntity>> UnMarkAsDeletedAsync(TKey key);
-        Task<PagedListDto<TEntity>> GetDeletedAsync();
+        Task<MultiObjectsResponse<IEnumerable<TEntity>>> GetDeletedAsync(PaginationParametersBase pagination);
         Task<bool> IsDeleted(TKey key);
     }
 }

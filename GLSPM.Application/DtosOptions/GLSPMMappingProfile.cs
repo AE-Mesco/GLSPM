@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GLSPM.Application.Dtos.Cards;
 using GLSPM.Application.Dtos.Passwords;
+using GLSPM.Domain.Dtos.Passwords;
 using GLSPM.Domain.Entities;
 using System;
 using System.Collections.Generic;

@@ -2,6 +2,7 @@
 using CubesFramework.Security;
 using FluentValidation;
 using GLSPM.Domain;
+using GLSPM.Domain.Dtos.Passwords;
 using GLSPM.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -15,22 +16,6 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.Dtos.Passwords
 {
-    public class PasswordCreateDto
-    {
-        [Required]
-        [StringLength(50, MinimumLength = 2)]
-        public string Title { get; set; }
-        public IFormFile? Logo { get; set; }
-        public string? AdditionalInfo { get; set; }
-        [Required]
-        public string Username { get; set; }
-        [Required]
-        public string Password { get; set; }
-        public string? Source { get; set; }
-        [Required]
-        public string UserID { get; set; }
-    }
-
     public class PasswordCreateDtoValidator : AbstractValidator<PasswordCreateDto>
     {
         public PasswordCreateDtoValidator()

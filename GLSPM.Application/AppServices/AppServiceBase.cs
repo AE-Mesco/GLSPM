@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GLSPM.Application.AppServices.Interfaces;
 using GLSPM.Application.Dtos;
+using GLSPM.Application.Helpers;
 using GLSPM.Domain;
 using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Entities;
@@ -26,7 +27,9 @@ namespace GLSPM.Application.AppServices
             IMapper mapper,
             IConfiguration configuration,
             IWebHostEnvironment environment,
-            IOptions<FilesPathes> filesPathes)
+            IOptions<FilesPathes> filesPathes,
+            IUriAppService uriAppService,
+            IHttpContextAccessor httpContextAccessor)
         {
             UnitOfWork = unitOfWork;
             Logger = logger;
@@ -34,6 +37,8 @@ namespace GLSPM.Application.AppServices
             Mapper = mapper;
             Configuration = configuration;
             Environment = environment;
+            UriAppService = uriAppService;
+            HttpContextAccessor = httpContextAccessor;
             FilesPathes = filesPathes.Value;
         }
         public IUnitOfWork UnitOfWork { get; }
@@ -42,6 +47,8 @@ namespace GLSPM.Application.AppServices
         public IMapper Mapper { get; }
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
+        public IUriAppService UriAppService { get; }
+        public IHttpContextAccessor HttpContextAccessor { get; }
         public FilesPathes FilesPathes { get; }
         public ILogger Logger { get; }
 
@@ -50,13 +57,13 @@ namespace GLSPM.Application.AppServices
             var data = Mapper.Map<TEntity>(input);
             data = await Repository.InsertAsync(data);
             await UnitOfWork.CommitAsync();
-            var results= Mapper.Map<TReadDto>(data);
+            var results = Mapper.Map<TReadDto>(data);
             return new SingleObjectResponse<TReadDto>
             {
-                Success=true,
-                Message="Item Created",
-                Data=results,
-                StatusCode= StatusCodes.Status201Created
+                Success = true,
+                Message = "Item Created",
+                Data = results,
+                StatusCode = StatusCodes.Status201Created
             };
         }
 
@@ -69,7 +76,7 @@ namespace GLSPM.Application.AppServices
         public virtual async Task<SingleObjectResponse<TReadDto>> GetAsync(TKey key)
         {
             var data = await Repository.GetAsync(key);
-            if (data!=null)
+            if (data != null)
             {
                 var results = Mapper.Map<TReadDto>(data);
                 return new SingleObjectResponse<TReadDto>
@@ -82,7 +89,7 @@ namespace GLSPM.Application.AppServices
             }
             else
             {
-               return new SingleObjectResponse<TReadDto>
+                return new SingleObjectResponse<TReadDto>
                 {
                     Success = false,
                     Message = "Item Not Found",
@@ -90,27 +97,28 @@ namespace GLSPM.Application.AppServices
                     Error = "Couldn't find an entity realted to the passed id"
                 }; ;
             }
-            
+
         }
 
-        public virtual async Task<PagedListDto<TReadDto>> GetListAsync(GetListDto input)
+        public virtual async Task<MultiObjectsResponse<IEnumerable<TReadDto>>> GetListAsync(GetListDto input)
         {
             IEnumerable<TEntity> data;
             if (!string.IsNullOrWhiteSpace(input.Filter))
             {
-                data = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: input.SkipCount.Value, input.MaxResults.Value);
+                data = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: input.SkippedData, input.PageSize);
             }
             else
             {
-                data = await Repository.GetAllAsync(sorting: input.Sorting, skipCound: input.SkipCount.Value, input.MaxResults.Value);
+                data = await Repository.GetAllAsync(sorting: input.Sorting, skipCound: input.SkippedData, input.PageSize);
             }
-            var results = Mapper.Map<IReadOnlyList<TReadDto>>(data);
-            return new PagedListDto<TReadDto>(data.Count(), results)
-            {
-                Message="Items Found",
-                StatusCode= StatusCodes.Status200OK,
-                Success=true,
-            };
+            var getAllQuery = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: 0, int.MaxValue);
+            
+            var results = Mapper.Map<IEnumerable<TReadDto>>(data);
+            var response = PaginationHelper.CreatePagedReponse(results, input, getAllQuery.Count(), UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
+            response.Success = true;
+            response.Message = "Items Found";
+            response.StatusCode = StatusCodes.Status200OK;
+            return response;
         }
 
         public virtual async Task<SingleObjectResponse<TReadDto>> UpdateAsync(TKey key, TUpdateDto input)
@@ -120,7 +128,7 @@ namespace GLSPM.Application.AppServices
                 var data = Mapper.Map<TEntity>(input);
                 await Repository.UpdateAsync(data);
                 await UnitOfWork.CommitAsync();
-                var results= Mapper.Map<TReadDto>(data);
+                var results = Mapper.Map<TReadDto>(data);
                 return new SingleObjectResponse<TReadDto>
                 {
                     Success = true,
@@ -134,7 +142,7 @@ namespace GLSPM.Application.AppServices
                 Success = false,
                 Message = "Item Not Found",
                 StatusCode = StatusCodes.Status404NotFound,
-                Error="Couldn't find an entity realted to the passed id"
+                Error = "Couldn't find an entity realted to the passed id"
             }; ;
         }
     }

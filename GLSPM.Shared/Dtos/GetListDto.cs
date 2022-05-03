@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Domain.Dtos
 {
-    public class GetListDto
+    public class GetListDto : PaginationParametersBase
     {
         public string Filter { get; set; }
         public string Sorting { get; set; }
-        public int? SkipCount { get; set; } = 0;
-        public int? MaxResults { get; set; } = 100;
     }
 }

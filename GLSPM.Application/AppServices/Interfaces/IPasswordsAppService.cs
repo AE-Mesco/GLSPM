@@ -1,6 +1,7 @@
 ﻿using GLSPM.Application.Dtos;
 using GLSPM.Application.Dtos.Passwords;
 using GLSPM.Domain.Dtos;
+using GLSPM.Domain.Dtos.Passwords;
 using GLSPM.Domain.Entities;
 using System;
 using System.Collections.Generic;

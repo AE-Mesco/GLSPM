@@ -2,6 +2,7 @@
 using GLSPM.Application.Dtos;
 using GLSPM.Application.Dtos.Passwords;
 using GLSPM.Domain.Dtos;
+using GLSPM.Domain.Dtos.Passwords;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -54,7 +55,18 @@ namespace GLSPM.Server.Controllers
             var results = await _passwordsAppService.UpdateAsync(id,input);
             return results.Success ? Accepted(results) : BadRequest(results);
         }
-        [HttpPut("MoveToTrash/{id}")]
+        [HttpPut("Logo")]
+        public async Task<IActionResult> ChnageLogo([FromForm] ChangeLogoDto<int> input)
+        {
+            await _passwordsAppService.ChangeLogo(input);
+            return Accepted(new SingleObjectResponse<object>
+            {
+                Success=true,
+                StatusCode=StatusCodes.Status202Accepted,
+                Message="Logo Updated",
+            });
+        }
+        [HttpPost("Trash/{id}")]
         public async Task<IActionResult> MoveToTrash(int id)
         {
             await _passwordsAppService.MarkAsDeletedAsync(id);
