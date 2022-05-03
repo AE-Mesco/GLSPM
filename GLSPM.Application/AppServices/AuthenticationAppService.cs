@@ -187,7 +187,9 @@ namespace GLSPM.Application.AppServices
                 {
                     Success = false,
                     StatusCode = StatusCodes.Status406NotAcceptable,
-                    Message = "User already exists"
+                    Message = "User already exists",
+                    Error= "User already exists"
+
                 };
             }
             var user = new ApplicationUser

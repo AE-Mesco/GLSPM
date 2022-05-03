@@ -4,6 +4,7 @@ using GLSPM.Domain;
 using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Dtos.Identity;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -24,7 +25,7 @@ namespace GLSPM.Client.Services
         {
             _httpClient = httpClient;
             _localStorageService = localStorageService;
-            _authenticationStateProvider =(GLSPMAuthenticationStateProvider) authenticationStateProvider;
+            _authenticationStateProvider = (GLSPMAuthenticationStateProvider)authenticationStateProvider;
         }
         public bool IsLogged => _localStorageService.ContainKey(LocalStorageUserDataKey);
 
@@ -32,7 +33,7 @@ namespace GLSPM.Client.Services
 
         public async Task<SingleObjectResponse<LoginResponseDto>> Login(LoginUserDto input)
         {
-            var response = await _httpClient.PostAsJsonAsync(ApplicationConses.Apis.Accounts.Login, input);
+            var response = await _httpClient.PostAsJsonAsync(Accounts.Login, input);
             var loginData = await response.Content.ReadFromJsonAsync<SingleObjectResponse<LoginResponseDto>>();
             if (loginData != null && loginData.Success)
             {
@@ -51,9 +52,33 @@ namespace GLSPM.Client.Services
 
         }
 
-        public async Task<SingleObjectResponse<object>> Register(RegisterUserDto input)
+        public async Task<SingleObjectResponse<object>> Register(RegisterUserDto input, IBrowserFile avatar)
         {
-            throw new NotImplementedException();
+            var content = new MultipartFormDataContent();
+            if (avatar != null)
+            {
+                var fileContent = new StreamContent(avatar.OpenReadStream(IAccountsService.maxAllowedSize));
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(avatar.ContentType);
+                content.Add(
+                    content: fileContent,
+                    name: "\"avatar\"",
+                    fileName: avatar.Name);
+            }
+
+            content.Add(
+                content: new StringContent(input.Username),
+                name: "\"username\"");
+
+            content.Add(
+                content: new StringContent(input.Email),
+                name: "\"email\"");
+
+            content.Add(
+                content: new StringContent(input.Password),
+                name: "\"password\"");
+
+            var response = await _httpClient.PostAsync(Accounts.Register, content);
+            return await response.Content.ReadFromJsonAsync<SingleObjectResponse<object>>();
         }
 
     }

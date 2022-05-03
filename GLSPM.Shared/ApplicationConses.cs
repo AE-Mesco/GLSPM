@@ -10,6 +10,8 @@
             {
                 public static string Controller = Base + "/Accounts";
                 public static string Login = Controller + "/Login";
+                public static string Register = Controller + "/Register";
+
             }
         }
 
