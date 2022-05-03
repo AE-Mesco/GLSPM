@@ -18,5 +18,6 @@ namespace GLSPM.Domain.Repositories
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(TEntity entity);
         Task DeleteAsync(TKey key);
+        Task<int> GetCountAsync(string? filter = null);
     }
 }

@@ -103,18 +103,19 @@ namespace GLSPM.Application.AppServices
         public virtual async Task<MultiObjectsResponse<IEnumerable<TReadDto>>> GetListAsync(GetListDto input)
         {
             IEnumerable<TEntity> data;
+            int totalCount = 0;
             if (!string.IsNullOrWhiteSpace(input.Filter))
             {
                 data = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: input.SkippedData, input.PageSize);
+                totalCount = await Repository.GetCountAsync(filter: input.Filter);
             }
             else
             {
                 data = await Repository.GetAllAsync(sorting: input.Sorting, skipCound: input.SkippedData, input.PageSize);
+                totalCount = await Repository.GetCountAsync();
             }
-            var getAllQuery = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: 0, int.MaxValue);
-            
             var results = Mapper.Map<IEnumerable<TReadDto>>(data);
-            var response = PaginationHelper.CreatePagedReponse(results, input, getAllQuery.Count(), UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
+            var response = PaginationHelper.CreatePagedReponse(results, input, totalCount, UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
             response.Success = true;
             response.Message = "Items Found";
             response.StatusCode = StatusCodes.Status200OK;

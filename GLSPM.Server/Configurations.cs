@@ -62,22 +62,22 @@ namespace GLSPM.Server
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseHttpsRedirection();
+
+            //blazor
+            app.UseBlazorFrameworkFiles();
+            app.UseStaticFiles();
+            //routing
+            app.UseRouting();
             //swagger
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
             });
-
-            app.UseHttpsRedirection();
             //auth
             app.UseAuthentication();
             app.UseAuthorization();
-            //blazor
-            app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
-            //routing
-            app.UseRouting();
             app.MapRazorPages();
             app.MapControllers();
             app.MapFallbackToFile("index.html");

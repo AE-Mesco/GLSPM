@@ -77,6 +77,11 @@ namespace GLSPM.Application.EFCore.Repositories
             return await _dbSet.FindAsync(keyValues: key);
         }
 
+        public async Task<int> GetCountAsync(string? filter=null)
+        {
+            return filter != null ? await _dbSet.Where(filter).CountAsync() : await _dbSet.CountAsync();
+        }
+
         public async Task<TEntity> InsertAsync(TEntity entity)
         {
             var entry= await _dbSet.AddAsync(entity);

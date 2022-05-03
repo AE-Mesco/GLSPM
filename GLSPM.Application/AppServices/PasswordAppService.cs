@@ -67,6 +67,7 @@ namespace GLSPM.Application.AppServices
         public async override Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetListAsync(GetListDto input)
         {
             IEnumerable<Password> passwords;
+            int totalCount = 0;
             if (!string.IsNullOrWhiteSpace(input.Filter))
             {
                 input.Filter = input.Filter.ToLower();
@@ -76,14 +77,16 @@ namespace GLSPM.Application.AppServices
                              .OrderBy(input.Sorting)
                              .Skip(input.SkippedData)
                              .Take(input.PageSize);
+                totalCount = await Repository.GetCountAsync(input.Filter);
             }
             else
             {
                 passwords = await Repository.GetAllAsync(input.Sorting, input.SkippedData, input.PageSize);
+                totalCount = await Repository.GetCountAsync();
+
             }
-            var getAllQuery = await Repository.GetAllAsync(filter: input.Filter, input.Sorting, skipCound: 0, int.MaxValue);
             var results = Mapper.Map<IEnumerable<PasswordReadDto>>(passwords);
-            var response = PaginationHelper.CreatePagedReponse(results, input, getAllQuery.Count(), UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
+            var response = PaginationHelper.CreatePagedReponse(results, input, totalCount, UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);
             response.Success = true;
             response.Message = "Items Found";
             response.StatusCode = StatusCodes.Status200OK;

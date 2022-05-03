@@ -12,6 +12,7 @@ namespace GLSPM.Client.Services
         {
             _httpClient = httpClient;
         }
+
         public event Action PasswordsChnaged;
 
         public Task ChangeLogoAsync(int id, IBrowserFile logo)
@@ -19,7 +20,7 @@ namespace GLSPM.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<PasswordReadDto> CreateAsync(PasswordCreateDto input, IBrowserFile logo)
+        public Task<SingleObjectResponse<PasswordReadDto>> CreateAsync(PasswordCreateDto input, IBrowserFile logo)
         {
             throw new NotImplementedException();
         }
@@ -29,18 +30,17 @@ namespace GLSPM.Client.Services
             throw new NotImplementedException();
         }
 
-        public async Task<PasswordReadDto> GetAsync(int id)
-        {
-            var results = await _httpClient.GetAsync<>(Passwords.GetOne(id));
-
-        }
-
-        public Task<IEnumerable<PasswordReadDto>> GetListAsync(GetListDto input)
+        public Task<SingleObjectResponse<PasswordReadDto>> GetAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<PasswordReadDto>> GetTrashedListAsync(GetListDto input)
+        public Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetListAsync(GetListDto input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetTrashedListAsync(GetListDto input)
         {
             throw new NotImplementedException();
         }
@@ -50,12 +50,12 @@ namespace GLSPM.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<PasswordReadDto> RestoreAsync(int id)
+        public Task<SingleObjectResponse<PasswordReadDto>> RestoreAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PasswordReadDto> UpdateAsync(PasswordUpdateDto input)
+        public Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(PasswordUpdateDto input)
         {
             throw new NotImplementedException();
         }
