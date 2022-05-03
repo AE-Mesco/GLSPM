@@ -1,6 +1,8 @@
 ﻿using GLSPM.Application;
 using GLSPM.Application.EFCore;
+using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Entities;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +50,7 @@ namespace GLSPM.Server
 
         public static WebApplication Setup(this WebApplication app)
         {
+            app.AddGlobalExceptionHandler();
             //seed the admin user
             using (var scope = app.Services.CreateScope())
             {
@@ -81,6 +84,30 @@ namespace GLSPM.Server
             app.MapRazorPages();
             app.MapControllers();
             app.MapFallbackToFile("index.html");
+            return app;
+        }
+        public static WebApplication AddGlobalExceptionHandler(this WebApplication app)
+        {
+            app.UseExceptionHandler(error =>
+            {
+                error.Run(async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    var httperror = context.Features.Get<IExceptionHandlerFeature>();
+                    if (httperror != null)
+                    {
+                        Log.Error($"An application error occured {httperror.Error}");
+                        await context.Response.WriteAsJsonAsync(new SingleObjectResponse<object>
+                        {
+                            Success = false,
+                            Message = $"An application error occured {httperror.Error}",
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            Error = new object[] { new { Message = $"An application error occured {httperror.Error}" } }
+                        });
+                    }
+                });
+            });
             return app;
         }
         public static UserManager<ApplicationUser> SeedDefUsers(this UserManager<ApplicationUser> userManager)
