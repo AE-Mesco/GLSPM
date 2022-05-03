@@ -12,5 +12,10 @@
                 public static string Login = Controller + "/Login";
             }
         }
+
+        public static class ClientConses
+        {
+            public const string LocalStorageUserDataKey = "userdata";
+        }
     }
 }

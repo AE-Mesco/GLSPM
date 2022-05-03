@@ -15,7 +15,7 @@ namespace GLSPM.Application.EFCore
     {
         public GLSPMDBContext(DbContextOptions<GLSPMDBContext> options):base(options)
         {
-
+            Database.EnsureCreated();
         }
 
         public DbSet<Card> Cards { get; set; }

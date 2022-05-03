@@ -19,14 +19,17 @@ namespace GLSPM.Server.Controllers
         private readonly ILogger<AccountsController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuthenticationAppService _authenticationAppService;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public AccountsController(ILogger<AccountsController> logger,
             UserManager<ApplicationUser> userManager,
-            IAuthenticationAppService authenticationAppService)
+            IAuthenticationAppService authenticationAppService,
+            SignInManager<ApplicationUser> signInManager)
         {
             _logger = logger;
             _userManager = userManager;
             _authenticationAppService = authenticationAppService;
+            _signInManager = signInManager;
         }
 
         [HttpPost("Register")]
@@ -92,6 +95,7 @@ namespace GLSPM.Server.Controllers
             }
             else
             {
+                await _signInManager.SignInAsync(_authenticationAppService.User,false);
                 _logger.LogInformation("User logged");
                 _logger.LogInformation("Attempting to preparing the response...");
                 //preparing the user data

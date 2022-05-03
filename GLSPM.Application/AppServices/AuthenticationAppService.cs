@@ -128,8 +128,10 @@ namespace GLSPM.Application.AppServices
             {
                 new Claim(ClaimTypes.Name,appuser.UserName),
                 new Claim(ClaimTypes.Email,appuser.Email),
+                new Claim(JwtRegisteredClaimNames.Sub,appuser.Email),
+                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Sid,appuser.Id),
-                new Claim(ClaimTypes.SerialNumber,appuser.Id)
+                new Claim(ClaimTypes.NameIdentifier,appuser.Id)
             };
 
             if (!string.IsNullOrEmpty(appuser.ImagePath))

@@ -137,9 +137,16 @@ namespace GLSPM.Application
             var MSCS = configuration.GetConnectionString("MSCS");
             var MYSCS = configuration.GetConnectionString("MYSCS");
             var liteCS = configuration.GetConnectionString("liteCS");
+           
             services.AddDbContext<GLSPMDBContext>(options =>
             {
-                options.UseSqlServer(MSCS, c => c.MigrationsAssembly("GLSPM.Server"));
+                if (!string.IsNullOrWhiteSpace(liteCS))
+                options.UseSqlite(liteCS, c => c.MigrationsAssembly("GLSPM.Server"));
+                else if (!string.IsNullOrWhiteSpace(MSCS))
+                    options.UseSqlServer(MSCS, c => c.MigrationsAssembly("GLSPM.Server"));
+                else if (!string.IsNullOrWhiteSpace(MYSCS))
+                    options.UseMySql(connectionString: MYSCS, serverVersion:ServerVersion.AutoDetect(MYSCS), c => c.MigrationsAssembly("GLSPM.Server"));
+
                 options.EnableDetailedErrors();
             });
             return services;

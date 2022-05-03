@@ -1,29 +1,32 @@
 ﻿@inject IAccountsService AccountsService
-
 <MudMenu TransformOrigin="Origin.BottomCenter">
     <ActivatorContent>
-        @if (AccountsService.IsLogged)
-        {
-            <MudAvatar Image="@AccountsService.User.Avatar" Size="Size.Small"/>
-        }
-        else
-        {
-            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
-        }
+        <AuthorizeView >
+            <Authorized>
+
+                <MudAvatar Image="@AccountsService.User.Avatar" Size="Size.Small" />
+            </Authorized>
+            <NotAuthorized>
+                <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+
+            </NotAuthorized>
+        </AuthorizeView >
     </ActivatorContent>
     <ChildContent>
-        @if (!AccountsService.IsLogged)
-        {
-            <MudMenuItem>
-                <MudLink Href="/login">Login</MudLink>
-            </MudMenuItem>
-        }
-        else
-        {
-            <MudMenuItem>
-                <MudLink Href="#" @onclick="(async ()=>await OnClickLogout())">Logout</MudLink>
-            </MudMenuItem>
-        }
+        <AuthorizeView  >
+            <Authorized>
+
+                <MudMenuItem>
+                    <MudLink Href="#" @onclick="(async ()=>await OnClickLogout())">Logout</MudLink>
+                </MudMenuItem>
+            </Authorized>
+            <NotAuthorized>
+                <MudMenuItem>
+                    <MudLink Href="/login">Login</MudLink>
+                </MudMenuItem>
+
+            </NotAuthorized>
+        </AuthorizeView >
         <MudMenuItem>
             <MudLink Href="/register">New Account</MudLink>
         </MudMenuItem>
