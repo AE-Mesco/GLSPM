@@ -38,9 +38,9 @@ namespace GLSPM.Server.Controllers
             return results.Success? Ok(results) : BadRequest(results);
         }
         [HttpGet("Trashed")]
-        public async Task<IActionResult> GetTrashed()
+        public async Task<IActionResult> GetTrashed([FromQuery]PaginationParametersBase pagination)
         {
-            var results = await _passwordsAppService.GetDeletedAsync();
+            var results = await _passwordsAppService.GetDeletedAsync(pagination);
             return Ok(results);
         }
         [HttpPost]
