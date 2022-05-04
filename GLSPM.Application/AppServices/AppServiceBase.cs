@@ -112,7 +112,7 @@ namespace GLSPM.Application.AppServices
             else
             {
                 data = await Repository.GetAllAsync(sorting: input.Sorting, skipCound: input.SkippedData, input.PageSize);
-                totalCount = await Repository.GetCountAsync();
+                totalCount = await Repository.GetCountAsync(filter: null);
             }
             var results = Mapper.Map<IEnumerable<TReadDto>>(data);
             var response = PaginationHelper.CreatePagedReponse(results, input, totalCount, UriAppService, HttpContextAccessor.HttpContext.Request.Path.Value);

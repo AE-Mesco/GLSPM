@@ -77,12 +77,13 @@ namespace GLSPM.Application.AppServices
                              .OrderBy(input.Sorting)
                              .Skip(input.SkippedData)
                              .Take(input.PageSize);
-                totalCount = await Repository.GetCountAsync(input.Filter);
+                totalCount = await Repository.GetCountAsync(c => c.Title.ToLower().Contains(input.Filter) ||
+                c.Source.ToLower().Contains(input.Filter));
             }
             else
             {
                 passwords = await Repository.GetAllAsync(input.Sorting, input.SkippedData, input.PageSize);
-                totalCount = await Repository.GetCountAsync();
+                totalCount = await Repository.GetCountAsync(filter:null);
 
             }
             var results = Mapper.Map<IEnumerable<PasswordReadDto>>(passwords);

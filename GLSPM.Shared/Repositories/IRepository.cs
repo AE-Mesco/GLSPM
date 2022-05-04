@@ -19,5 +19,6 @@ namespace GLSPM.Domain.Repositories
         Task DeleteAsync(TEntity entity);
         Task DeleteAsync(TKey key);
         Task<int> GetCountAsync(string? filter = null);
+        Task<int> GetCountAsync(Expression<Func<TEntity, bool>>? condition = null);
     }
 }

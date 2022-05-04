@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
+using Gridify;
 namespace GLSPM.Application.EFCore.Repositories
 {
     public class BaseRepository<TEntity, TKey> : IRepository<TEntity, TKey> where TEntity : class
@@ -48,12 +49,15 @@ namespace GLSPM.Application.EFCore.Repositories
 
         public virtual async Task<IEnumerable<TEntity>> GetAllAsync(string filter, string sorting = null, int skipCound = 0, int maxResult = 100)
         {
-            var data = await _dbSet.Where(filter)
-                .OrderBy(sorting)
-                .Skip(skipCound)
-                .Take(maxResult)
-                .ToArrayAsync();
-            return data;
+            var data = _dbSet.Gridify(new GridifyQuery
+            {
+                Filter = filter,
+                OrderBy = sorting,
+                PageSize = maxResult,
+                Page = skipCound / maxResult
+            });
+                
+            return data.Data;
         }
 
         public async Task<IEnumerable<TEntity>> GetAllAsync(string sorting = null, int skipCound = 0, int maxResult = 100)
@@ -79,7 +83,12 @@ namespace GLSPM.Application.EFCore.Repositories
 
         public async Task<int> GetCountAsync(string? filter=null)
         {
-            return filter != null ? await _dbSet.Where(filter).CountAsync() : await _dbSet.CountAsync();
+            return filter != null ? _dbSet.Gridify(new GridifyQuery(0,int.MaxValue,filter)).Count : await _dbSet.CountAsync();
+        }
+
+        public async Task<int> GetCountAsync(Expression<Func<TEntity, bool>>? condition = null)
+        {
+            return condition != null ?await _dbSet.Where(condition).CountAsync() : await _dbSet.CountAsync();
         }
 
         public async Task<TEntity> InsertAsync(TEntity entity)
