@@ -1,40 +1,20 @@
 ﻿@page "/Passwords"
 @attribute [Authorize]
-@inject IPasswordsService PasswordsService
-@inject ISnackbar Snackbar
-<div class="d-flex flex-wrap">
-    <MudBadge Content="activebadge" Color="Color.Primary" Overlap="true" Class="mx-6 my-4">
-        <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
+<div class="d-flex flex-wrap justify-space-between">
+     <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
             Passwords
         </MudText>
-    </MudBadge>
+    <MudButton Variant="Variant.Filled" @onclick="OpenCreateDialog" StartIcon="@Icons.Material.Filled.Create" Color="Color.Primary" Class="align-self-center" Size="Size.Large">New</MudButton>
 </div>
 <MudAutocomplete T="string" Label="Search Active Passwords" Style="margin-bottom:20px;max-width:500px;"
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
 
 
 <div class="d-flex gap-5 flex-wrap">
-    @for (var i = 0; i < num; i++)
+    @if(Passwords!=null && Passwords.Count()>=1)
+    @for (var i = 0; i < Passwords.Count(); i++)
     {
-        <MudCard Class="card">
-            <MudCardHeader>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.body1">Istra Croatia</MudText>
-                    <MudText Typo="Typo.body2">Peninsula in Europe</MudText>
-                </CardHeaderContent>
-                <CardHeaderActions>
-                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
-                </CardHeaderActions>
-            </MudCardHeader>
-            <MudCardMedia Image="/imgs/loading.gif" Height="100" />
-            <MudCardContent>
-                <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
-            </MudCardContent>
-            <MudCardActions>
-                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
-                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Default" />
-            </MudCardActions>
-        </MudCard>
+        <PasswordCard Model="Passwords.ElementAt(i)"/>
     }
 </div>
 <div class="d-flex flex-column align-center">
@@ -47,20 +27,28 @@
     }
 </style>
 @code {
+    [Inject] IPasswordsService PasswordsService { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] IDialogService DialogService{ get;set;  }
+
+    private IEnumerable<PasswordReadDto> Passwords = new List<PasswordReadDto>();
+    private string activebadge = "Active";
+    private void OpenCreateDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<CreatePasswordDialog>("Create New Password", options);
+    }
     protected async override Task OnInitializedAsync()
     {
         var data = await PasswordsService.GetListAsync(new GetListDto());
         if (data.Success)
         {
-
-            Snackbar.Add(data.TotalRecords.ToString());
+            Passwords = data.Data;
         }
         else
         {
-            Snackbar.Add("faild");
-
+            Snackbar.Add("faild loading the data");
+            Snackbar.Add(data.Error.ToString(),Severity.Error);
         }
     }
-    string activebadge = "Active";
-    int num = 10;
 }
