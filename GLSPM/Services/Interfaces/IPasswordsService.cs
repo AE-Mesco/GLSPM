@@ -9,7 +9,7 @@ namespace GLSPM.Client.Services.Interfaces
         Task<SingleObjectResponse<PasswordReadDto>> GetAsync(int id);
         Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetListAsync(GetListDto input);
         Task<SingleObjectResponse<PasswordReadDto>> CreateAsync(PasswordCreateDto input, IBrowserFile logo);
-        Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(PasswordUpdateDto input);
+        Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(int id,PasswordUpdateDto input);
         Task ChangeLogoAsync(int id, IBrowserFile logo);
         Task DeleteAsync(int id);
         Task MoveToTrashAsync(int id);

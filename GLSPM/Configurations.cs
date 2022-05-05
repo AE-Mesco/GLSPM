@@ -11,14 +11,17 @@ namespace GLSPM.Client
     {
         public static IServiceCollection AddClientServices(this IServiceCollection services, IWebAssemblyHostEnvironment environment)
         {
+            var client = new HttpClient { BaseAddress = new Uri(environment.BaseAddress) };
             services
-                .AddSingleton(sp => new HttpClient { BaseAddress = new Uri(environment.BaseAddress) })
+                .AddSingleton(client)
                 .AddMudServices()
                 .AddBlazoredLocalStorage()
                 .AddAuthorizationCore()
                 .AddScoped<GLSPMAuthenticationStateProvider>()
                 .AddScoped<AuthenticationStateProvider>(p=>p.GetRequiredService<GLSPMAuthenticationStateProvider>())
-                .AddScoped<IAccountsService, AccountsService>();
+                .AddScoped<IAccountsService, AccountsService>()
+                .AddScoped<IPasswordsService, PasswordsService>();
+
             return services;
         }
     }

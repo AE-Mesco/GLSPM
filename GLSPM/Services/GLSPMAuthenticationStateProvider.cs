@@ -11,13 +11,16 @@ namespace GLSPM.Client.Services
     {
         private readonly ILocalStorageService _localStorageService;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<GLSPMAuthenticationStateProvider> _logger;
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
 
         public GLSPMAuthenticationStateProvider(ILocalStorageService localStorageService,
-            HttpClient httpClient)
+            HttpClient httpClient,
+            ILogger<GLSPMAuthenticationStateProvider> logger)
         {
             _localStorageService = localStorageService;
             _httpClient = httpClient;
+            _logger = logger;
             _jwtSecurityTokenHandler = new();
         }
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -39,6 +42,8 @@ namespace GLSPM.Client.Services
 
                 var claims = await ParseUserClaims(jwttoken);
                 var authUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", user.Token);
+                _logger.LogInformation("authUser:", authUser);
                 return new AuthenticationState(authUser);
             }
             catch 

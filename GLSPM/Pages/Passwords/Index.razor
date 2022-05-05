@@ -1,15 +1,16 @@
 ﻿@page "/Passwords"
 @attribute [Authorize]
-
+@inject IPasswordsService PasswordsService
+@inject ISnackbar Snackbar
 <div class="d-flex flex-wrap">
     <MudBadge Content="activebadge" Color="Color.Primary" Overlap="true" Class="mx-6 my-4">
         <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
             Passwords
         </MudText>
     </MudBadge>
-    <MudAutocomplete T="string" Label="Search Active Passwords" Style="margin-bottom:20px"
-                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
 </div>
+<MudAutocomplete T="string" Label="Search Active Passwords" Style="margin-bottom:20px;max-width:500px;"
+                 AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
 
 
 <div class="d-flex gap-5 flex-wrap">
@@ -39,7 +40,27 @@
 <div class="d-flex flex-column align-center">
     <MudPagination ShowFirstButton="true" ShowLastButton="true" Count="11" Class="mt-4" />
 </div>
+<style>
+    .mud-select.mud-autocomplete {
+        display: flex !important;
+        justify-content: center;
+    }
+</style>
 @code {
+    protected async override Task OnInitializedAsync()
+    {
+        var data = await PasswordsService.GetListAsync(new GetListDto());
+        if (data.Success)
+        {
+
+            Snackbar.Add(data.TotalRecords.ToString());
+        }
+        else
+        {
+            Snackbar.Add("faild");
+
+        }
+    }
     string activebadge = "Active";
     int num = 10;
 }

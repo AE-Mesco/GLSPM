@@ -1,6 +1,9 @@
 ﻿using GLSPM.Client.Services.Interfaces;
 using GLSPM.Domain.Dtos;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace GLSPM.Client.Services
 {
@@ -15,49 +18,120 @@ namespace GLSPM.Client.Services
 
         public event Action PasswordsChnaged;
 
-        public Task ChangeLogoAsync(int id, IBrowserFile logo)
+        public async Task ChangeLogoAsync(int id, [NotNull] IBrowserFile logo)
         {
-            throw new NotImplementedException();
+            var content = new MultipartFormDataContent();
+            //adding the logo
+            var fileContent = new StreamContent(logo.OpenReadStream(IAccountsService.maxAllowedSize));
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(logo.ContentType);
+            content.Add(
+                content: fileContent,
+                name: "\"logo\"",
+                fileName: logo.Name);
+            //adding the key
+            content.Add(
+               content: new StringContent(id.ToString()),
+               name: "\"key\"");
+
+            var response = await _httpClient.PostAsync(Passwords.ChnageLogo, content);
+            PasswordsChnaged?.Invoke();
         }
 
-        public Task<SingleObjectResponse<PasswordReadDto>> CreateAsync(PasswordCreateDto input, IBrowserFile logo)
+        public async Task<SingleObjectResponse<PasswordReadDto>> CreateAsync(PasswordCreateDto input, IBrowserFile logo)
         {
-            throw new NotImplementedException();
+            var content = new MultipartFormDataContent();
+            if (logo != null)
+            {
+                //adding the logo
+                var fileContent = new StreamContent(logo.OpenReadStream(IAccountsService.maxAllowedSize));
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(logo.ContentType);
+                content.Add(
+                    content: fileContent,
+                    name: "\"logo\"",
+                    fileName: logo.Name);
+            }
+
+            //adding the title
+            content.Add(
+               content: new StringContent(input.Title),
+               name: "\"title\"");
+
+            //adding the AdditionalInfo
+            content.Add(
+               content: new StringContent(input?.AdditionalInfo),
+               name: "\"AdditionalInfo\"");
+
+            //adding the Username
+            content.Add(
+               content: new StringContent(input.Username),
+               name: "\"Username\"");
+
+            //adding the Source
+            content.Add(
+               content: new StringContent(input?.Source),
+               name: "\"Source\"");
+
+            //adding the Password
+            content.Add(
+               content: new StringContent(input.Password),
+               name: "\"Password\"");
+
+            //adding the UserID
+            content.Add(
+               content: new StringContent(input.UserID),
+               name: "\"UserID\"");
+
+            var response = await _httpClient.PostAsync(Passwords.Create, content);
+            PasswordsChnaged?.Invoke();
+            return await response.Content.ReadFromJsonAsync<SingleObjectResponse<PasswordReadDto>>();
         }
 
-        public Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var httpResponse = await _httpClient.DeleteAsync(Passwords.Delete(id));
+            PasswordsChnaged?.Invoke();
+
         }
 
-        public Task<SingleObjectResponse<PasswordReadDto>> GetAsync(int id)
+        public async Task<SingleObjectResponse<PasswordReadDto>> GetAsync(int id)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetFromJsonAsync<SingleObjectResponse<PasswordReadDto>>(Passwords.GetOne(id));
+            PasswordsChnaged?.Invoke();
+            return response;
         }
 
-        public Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetListAsync(GetListDto input)
+        public async Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetListAsync(GetListDto input)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetFromJsonAsync<MultiObjectsResponse<IEnumerable<PasswordReadDto>>>(Passwords.GetList(input));
+            PasswordsChnaged?.Invoke();
+            return response;
         }
 
-        public Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetTrashedListAsync(GetListDto input)
+        public async Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetTrashedListAsync(GetListDto input)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetFromJsonAsync<MultiObjectsResponse<IEnumerable<PasswordReadDto>>>(Passwords.GetTrashed(input));
+            PasswordsChnaged?.Invoke();
+            return response;
         }
 
-        public Task MoveToTrashAsync(int id)
+        public async Task MoveToTrashAsync(int id)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.PostAsync(Passwords.MoveToTrash(id), null);
+            PasswordsChnaged?.Invoke();
         }
 
-        public Task<SingleObjectResponse<PasswordReadDto>> RestoreAsync(int id)
+        public async Task<SingleObjectResponse<PasswordReadDto>> RestoreAsync(int id)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.PutAsync(Passwords.Restore(id),null);
+            PasswordsChnaged?.Invoke();
+            return await response.Content.ReadFromJsonAsync<SingleObjectResponse<PasswordReadDto>>();
         }
 
-        public Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(PasswordUpdateDto input)
+        public async Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(int id,PasswordUpdateDto input)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.PutAsJsonAsync(Passwords.Update(id),input);
+            PasswordsChnaged?.Invoke();
+            return await response.Content.ReadFromJsonAsync<SingleObjectResponse<PasswordReadDto>>();
         }
     }
 }
