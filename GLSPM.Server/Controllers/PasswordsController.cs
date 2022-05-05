@@ -1,12 +1,15 @@
 ﻿using GLSPM.Application.AppServices.Interfaces;
 using GLSPM.Application.Dtos;
 using GLSPM.Application.Dtos.Passwords;
+using GLSPM.Domain;
 using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Dtos.Passwords;
+using HeyRed.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Options;
+using FileClass = System.IO.File;
 namespace GLSPM.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -16,12 +19,15 @@ namespace GLSPM.Server.Controllers
     {
         private readonly ILogger<PasswordsController> _logger;
         private readonly IPasswordsAppService _passwordsAppService;
+        private readonly FilesPathes _filesPathes;
 
         public PasswordsController(ILogger<PasswordsController> logger,
-            IPasswordsAppService passwordsAppService)
+            IPasswordsAppService passwordsAppService,
+            IOptions<FilesPathes> filesPathes)
         {
             _logger = logger;
             _passwordsAppService = passwordsAppService;
+            _filesPathes = filesPathes.Value;
         }
 
         [HttpGet]
@@ -89,6 +95,23 @@ namespace GLSPM.Server.Controllers
         {
             await _passwordsAppService.DeleteAsync(id);
             return NoContent();
+        }
+        [HttpGet("Logo/{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Logo(int id)
+        {
+            var logoPath = await _passwordsAppService.GetLogoPathAsync(id);
+            if (logoPath != null)
+            {
+                return PhysicalFile(logoPath, MimeTypesMap.GetMimeType(logoPath), $"logo{Path.GetExtension(logoPath)}");
+            }
+            return NotFound(new SingleObjectResponse<object>
+            {
+                Success = false,
+                StatusCode = StatusCodes.Status404NotFound,
+                Message = "User Or Image not found",
+                Error = "Couldn't find a user or and Image related to the passed id"
+            });
         }
     }
 }

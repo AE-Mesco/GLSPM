@@ -55,21 +55,11 @@ namespace GLSPM.Client.Services
             content.Add(
                content: new StringContent(input.Title),
                name: "\"title\"");
-
-            //adding the AdditionalInfo
-            content.Add(
-               content: new StringContent(input?.AdditionalInfo),
-               name: "\"AdditionalInfo\"");
-
+        
             //adding the Username
             content.Add(
                content: new StringContent(input.Username),
                name: "\"Username\"");
-
-            //adding the Source
-            content.Add(
-               content: new StringContent(input?.Source),
-               name: "\"Source\"");
 
             //adding the Password
             content.Add(
@@ -80,6 +70,21 @@ namespace GLSPM.Client.Services
             content.Add(
                content: new StringContent(input.UserID),
                name: "\"UserID\"");
+
+            if (!string.IsNullOrWhiteSpace(input.AdditionalInfo))
+            {
+                //adding the AdditionalInfo
+                content.Add(
+                   content: new StringContent(input.AdditionalInfo),
+                   name: "\"AdditionalInfo\"");
+            }
+            if (!string.IsNullOrWhiteSpace(input.Source))
+            {
+                //adding the Source
+                content.Add(
+                   content: new StringContent(input?.Source),
+                   name: "\"Source\"");
+            }
 
             var response = await _httpClient.PostAsync(Passwords.Create, content);
             PasswordsChnaged?.Invoke();

@@ -27,7 +27,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Files\Logos\" />
 	  <Folder Include="logs\" />
 	</ItemGroup>
 

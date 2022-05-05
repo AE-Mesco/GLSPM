@@ -188,5 +188,16 @@ namespace GLSPM.Application.AppServices
                 Error = "Couldn't find an item realted to the passed id"
             };
         }
+
+        public async Task<string> GetLogoPathAsync(int id)
+        {
+            var password=await Repository.GetAsync(id);
+            if (password != null)
+            {
+                password.LogoPath ??= Path.GetFullPath($"{FilesPathes.LogosPath}/nologo.jpg");
+                return File.Exists(password.LogoPath) ? password.LogoPath : null;
+            }
+            return null;
+        }
     }
 }

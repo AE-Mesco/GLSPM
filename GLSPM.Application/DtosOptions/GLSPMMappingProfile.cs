@@ -32,7 +32,7 @@ namespace GLSPM.Application.Dtos
         private void RegisterPasswords()
         {
             CreateMap<Password, PasswordReadDto>()
-                .BeforeMap<PasswordToPasswordReadDtoMappingAction>()
+                .AfterMap<PasswordToPasswordReadDtoMappingAction>()
                 .ReverseMap()
                 .BeforeMap<PasswordReadDtoToPasswordMappingAction>();
             CreateMap<PasswordCreateDto, Password>()

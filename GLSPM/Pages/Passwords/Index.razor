@@ -1,25 +1,28 @@
 ﻿@page "/Passwords"
 @attribute [Authorize]
 <div class="d-flex flex-wrap justify-space-between">
-     <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
-            Passwords
-        </MudText>
-    <MudButton Variant="Variant.Filled" @onclick="OpenCreateDialog" StartIcon="@Icons.Material.Filled.Create" Color="Color.Primary" Class="align-self-center" Size="Size.Large">New</MudButton>
+    <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
+        Passwords
+    </MudText>
+    <MudButton Variant="Variant.Filled" @onclick="@(async ()=>await OpenCreateDialog())" StartIcon="@Icons.Material.Filled.Create" Color="Color.Primary" Class="align-self-center" Size="Size.Large">New</MudButton>
 </div>
 <MudAutocomplete T="string" Label="Search Active Passwords" Style="margin-bottom:20px;max-width:500px;"
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
 
+ @if (PasswordsResponse != null && PasswordsResponse.Data.Count() >= 1)
+{
+    <div class="d-flex gap-5 flex-wrap">
 
-<div class="d-flex gap-5 flex-wrap">
-    @if(Passwords!=null && Passwords.Count()>=1)
-    @for (var i = 0; i < Passwords.Count(); i++)
-    {
-        <PasswordCard Model="Passwords.ElementAt(i)"/>
-    }
-</div>
-<div class="d-flex flex-column align-center">
-    <MudPagination ShowFirstButton="true" ShowLastButton="true" Count="11" Class="mt-4" />
-</div>
+        @for (var i = 0; i < PasswordsResponse.Data.Count(); i++)
+        {
+            <PasswordCard Model=" PasswordsResponse.Data.ElementAt(i)" />
+        }
+    </div>
+    <div class="d-flex flex-column align-center">
+        <MudPagination ShowFirstButton="true" ShowLastButton="true" Count=" PasswordsResponse.TotalPages" Class="mt-4" />
+    </div>
+}
+
 <style>
     .mud-select.mud-autocomplete {
         display: flex !important;
@@ -29,26 +32,32 @@
 @code {
     [Inject] IPasswordsService PasswordsService { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
-    [Inject] IDialogService DialogService{ get;set;  }
+    [Inject] IDialogService DialogService { get; set; }
 
-    private IEnumerable<PasswordReadDto> Passwords = new List<PasswordReadDto>();
+    private MultiObjectsResponse<IEnumerable<PasswordReadDto>> PasswordsResponse;
     private string activebadge = "Active";
-    private void OpenCreateDialog()
+    private async Task OpenCreateDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        DialogService.Show<CreatePasswordDialog>("Create New Password", options);
+        var results = DialogService.Show<CreatePasswordDialog>("Create New Password", options);
+        if (await results.GetReturnValueAsync<bool>())
+        {
+            PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto());
+            if (!PasswordsResponse.Success)
+            {
+                Snackbar.Add("faild loading the data");
+                Snackbar.Add(PasswordsResponse.Error.ToString(), Severity.Error);
+            }
+        }
     }
     protected async override Task OnInitializedAsync()
     {
-        var data = await PasswordsService.GetListAsync(new GetListDto());
-        if (data.Success)
-        {
-            Passwords = data.Data;
-        }
-        else
+        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto());
+        if (!PasswordsResponse.Success)
         {
             Snackbar.Add("faild loading the data");
-            Snackbar.Add(data.Error.ToString(),Severity.Error);
+            Snackbar.Add(PasswordsResponse.Error.ToString(), Severity.Error);
         }
+        PasswordsService.PasswordsChnaged += StateHasChanged;
     }
 }

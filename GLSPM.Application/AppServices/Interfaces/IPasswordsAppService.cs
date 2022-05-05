@@ -14,5 +14,6 @@ namespace GLSPM.Application.AppServices.Interfaces
     public interface IPasswordsAppService : IAppService<Password,int,PasswordReadDto,PasswordCreateDto,PasswordUpdateDto>, ITrasherAppService<PasswordReadDto, int>
     {
         Task ChangeLogo(ChangeLogoDto<int> input);
+        Task<string> GetLogoPathAsync(int id);
     }
 }
