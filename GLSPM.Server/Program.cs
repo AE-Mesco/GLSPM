@@ -17,7 +17,7 @@ try
 catch (Exception ex)
 {
     Log.Fatal(ex, "The Application failed to start.");
-    File.AppendAllText(Path.Combine(Environment.CurrentDirectory, "MescoOnlinePaymentError.txt"), ex.Message);
+    File.AppendAllText(Path.Combine(Environment.CurrentDirectory, "AppError.txt"), ex.Message);
 }
 finally
 {

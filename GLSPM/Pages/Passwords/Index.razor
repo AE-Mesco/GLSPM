@@ -4,20 +4,26 @@
     <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
         Passwords
     </MudText>
-    <MudButton Variant="Variant.Filled" @onclick="@(async ()=>await OpenCreateDialog())" StartIcon="@Icons.Material.Filled.Create" Color="Color.Primary" Class="align-self-center" Size="Size.Large">New</MudButton>
+    <MudButton Variant="Variant.Filled" @onclick="@(async ()=>await OpenCreateDialog())" StartIcon="@Icons.Material.Filled.Create"
+               Color="Color.Primary" Class="align-self-center mb-5" Size="Size.Large">New</MudButton>
 </div>
 <MudAutocomplete T="string" Label="Search Active Passwords" Style="margin-bottom:20px;max-width:500px;"
-                 AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
+                 AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+                 SearchFunc="@(async (e)=>await SearchInTitles(e))"
+                 ResetValueOnEmptyText="true"
+                 ValueChanged="@(async (e)=>await SearchInTitles(e))"/>
 
  @if (PasswordsResponse != null && PasswordsResponse.Data.Count() >= 1)
 {
-    <div class="d-flex gap-5 flex-wrap">
+    <MudGrid>
 
-        @for (var i = 0; i < PasswordsResponse.Data.Count(); i++)
+        @foreach (var password in PasswordsResponse.Data)
         {
-            <PasswordCard Model=" PasswordsResponse.Data.ElementAt(i)" OnRefreshPasswords="(async ()=>await LoadPasswords())" />
+            <MudItem xs="12" sm="6" md="3">
+                <PasswordCard Model="password" OnRefreshPasswords="(async ()=>await LoadPasswords())" />
+            </MudItem>
         }
-    </div>
+    </MudGrid>
     <div class="d-flex flex-column align-center">
         <MudPagination ShowFirstButton="true" ShowLastButton="true" Count=" PasswordsResponse.TotalPages" Class="mt-4" />
     </div>
@@ -36,6 +42,8 @@
 
     private MultiObjectsResponse<IEnumerable<PasswordReadDto>> PasswordsResponse;
     private string activebadge = "Active";
+    private List<string> PasswordsTitles = new List<string>();
+    private string searchValue;
     private async Task OpenCreateDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
@@ -60,9 +68,19 @@
             PasswordsService.PasswordsChnaged += StateHasChanged;
         }
     }
-
-    async Task LoadPasswords()
+    private async Task<IEnumerable<string>> SearchInTitles(string value)
     {
-        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto());
+        await LoadPasswords(value);
+        if (string.IsNullOrEmpty(value))
+            return new string[0];
+        return PasswordsTitles.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+    private async Task LoadPasswords(string filter=null)
+    {
+        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto() {Filter=filter });
+        if (PasswordsResponse.Success && PasswordsResponse.Data != null && PasswordsResponse.Data.Count() >= 1)
+        {
+            PasswordsTitles = PasswordsResponse.Data.Select(p => p.Title).ToList();
+        }
     }
 }
