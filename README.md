@@ -1,7 +1,7 @@
 
 # GoodLawSoftware Password Manager (GLSPM)
 
-A software that handels your own login details & credit cards
+A software that handles your own login details & credit cards
 
 
 
