@@ -28,5 +28,13 @@ namespace GLSPM.Client.Dtos.Passwords
                .NotEmpty()
                .WithMessage("The username is required");
         }
+
+        public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+        {
+            var result = await ValidateAsync(ValidationContext<PasswordUpdateDto>.CreateWithOptions((PasswordUpdateDto)model, x => x.IncludeProperties(propertyName)));
+            if (result.IsValid)
+                return Array.Empty<string>();
+            return result.Errors.Select(e => e.ErrorMessage);
+        };
     }
 }
