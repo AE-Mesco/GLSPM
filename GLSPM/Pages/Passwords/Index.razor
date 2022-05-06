@@ -11,9 +11,43 @@
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
                  SearchFunc="@(async (e)=>await SearchInTitles(e))"
                  ResetValueOnEmptyText="true"
-                 ValueChanged="@(async (e)=>await SearchInTitles(e))"/>
+                 ValueChanged="@(async (e)=>await SearchInTitles(e))" />
+@if (loading)
+{
+    <MudGrid>
+        @for (var i = 0; i < 10; i++)
+        {
+            <MudItem xs="12" sm="6" md="3">
+                <MudCard>
+                    <MudCardHeader>
 
- @if (PasswordsResponse != null && PasswordsResponse.Data.Count() >= 1)
+                        <CardHeaderContent>
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                            <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="250px" />
+                    <MudCardContent>
+                        <MudSkeleton Animation="Animation.Wave" Height="100px"/>
+                        <MudSkeleton Animation="Animation.Wave" Height="100px"/>
+                    </MudCardContent>
+                    <MudCardActions>
+                      <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+
+
+}
+else @if (PasswordsResponse != null && PasswordsResponse.Data.Count() >= 1)
 {
     <MudGrid>
 
@@ -27,6 +61,12 @@
     <div class="d-flex flex-column align-center">
         <MudPagination ShowFirstButton="true" ShowLastButton="true" Count=" PasswordsResponse.TotalPages" Class="mt-4" />
     </div>
+}
+else
+{
+    <MudText Typo="Typo.body2">
+        No Passwords Added Yet!
+    </MudText>
 }
 
 <style>
@@ -44,6 +84,7 @@
     private string activebadge = "Active";
     private List<string> PasswordsTitles = new List<string>();
     private string searchValue;
+    private bool loading = true;
     private async Task OpenCreateDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
@@ -75,12 +116,14 @@
             return new string[0];
         return PasswordsTitles.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
-    private async Task LoadPasswords(string filter=null)
+    private async Task LoadPasswords(string filter = null)
     {
-        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto() {Filter=filter });
+        loading = true;
+        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto() { Filter = filter });
         if (PasswordsResponse.Success && PasswordsResponse.Data != null && PasswordsResponse.Data.Count() >= 1)
         {
             PasswordsTitles = PasswordsResponse.Data.Select(p => p.Title).ToList();
         }
+        loading = false;
     }
 }
