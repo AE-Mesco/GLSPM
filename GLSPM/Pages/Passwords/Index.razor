@@ -15,7 +15,7 @@
 
         @for (var i = 0; i < PasswordsResponse.Data.Count(); i++)
         {
-            <PasswordCard Model=" PasswordsResponse.Data.ElementAt(i)" />
+            <PasswordCard Model=" PasswordsResponse.Data.ElementAt(i)" OnRefreshPasswords="(async ()=>await LoadPasswords())" />
         }
     </div>
     <div class="d-flex flex-column align-center">
@@ -52,12 +52,17 @@
     }
     protected async override Task OnInitializedAsync()
     {
-        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto());
+        await LoadPasswords();
         if (!PasswordsResponse.Success)
         {
             Snackbar.Add("faild loading the data");
             Snackbar.Add(PasswordsResponse.Error.ToString(), Severity.Error);
+            PasswordsService.PasswordsChnaged += StateHasChanged;
         }
-        PasswordsService.PasswordsChnaged += StateHasChanged;
+    }
+
+    async Task LoadPasswords()
+    {
+        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto());
     }
 }

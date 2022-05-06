@@ -33,7 +33,7 @@ namespace GLSPM.Client.Services
                content: new StringContent(id.ToString()),
                name: "\"key\"");
 
-            var response = await _httpClient.PostAsync(Passwords.ChnageLogo, content);
+            var response = await _httpClient.PutAsync(Passwords.ChnageLogo, content);
             PasswordsChnaged?.Invoke();
         }
 
