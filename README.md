@@ -71,6 +71,13 @@ dotnet ef database update
 ```  
 
 
+## Login
+
+- Username : Admin
+- Password : Admin@2022
+
+
+
 ## Authors
 
 - [@AmirElkassar](https://github.com/AE-Mesco)
