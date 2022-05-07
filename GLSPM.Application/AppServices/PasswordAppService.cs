@@ -199,5 +199,24 @@ namespace GLSPM.Application.AppServices
             }
             return null;
         }
+
+        public async override Task<SingleObjectResponse<PasswordReadDto>> CreateAsync(PasswordCreateDto input)
+        {
+            var dbset = await Repository.GetAsQueryableAsync();
+            if (!await dbset.AnyAsync(p=>p.Title.ToLower()==input.Title.ToLower()))
+            {
+                return await base.CreateAsync(input);
+            }
+            else
+            {
+                return new SingleObjectResponse<PasswordReadDto>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status406NotAcceptable,
+                    Message = "Couldn't Create the password",
+                    Error = "The Item Title already exists"
+                };
+            }
+        }
     }
 }

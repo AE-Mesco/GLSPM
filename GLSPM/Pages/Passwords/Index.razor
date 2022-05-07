@@ -31,14 +31,14 @@
                     </MudCardHeader>
                     <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="250px" />
                     <MudCardContent>
-                        <MudSkeleton Animation="Animation.Wave" Height="100px"/>
-                        <MudSkeleton Animation="Animation.Wave" Height="100px"/>
+                        <MudSkeleton Animation="Animation.Wave" Height="100px" />
+                        <MudSkeleton Animation="Animation.Wave" Height="100px" />
                     </MudCardContent>
                     <MudCardActions>
-                      <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
-                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
-                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2" />
                     </MudCardActions>
                 </MudCard>
             </MudItem>
@@ -89,7 +89,8 @@ else
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var results = DialogService.Show<CreatePasswordDialog>("Create New Password", options);
-        if (await results.GetReturnValueAsync<bool>())
+        var dialogres = await results.Result;
+        if (!dialogres.Cancelled && await results.GetReturnValueAsync<bool>())
         {
             PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto());
             if (!PasswordsResponse.Success)

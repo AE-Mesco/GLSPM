@@ -98,6 +98,12 @@ namespace GLSPM.Client.Services
 
         }
 
+        public async Task<bool> Exists(string title)
+        {
+            var response =await GetListAsync(new GetListDto { Filter = title });
+            return response.Data.Count() == 0 || response.Data == null;
+        }
+
         public async Task<SingleObjectResponse<PasswordReadDto>> GetAsync(int id)
         {
             var response = await _httpClient.GetFromJsonAsync<SingleObjectResponse<PasswordReadDto>>(Passwords.GetOne(id));
