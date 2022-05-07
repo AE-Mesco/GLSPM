@@ -15,7 +15,7 @@
 @if (loading)
 {
     <MudGrid>
-        @for (var i = 0; i < 10; i++)
+        @for (var i = 0; i < pageSize; i++)
         {
             <MudItem xs="12" sm="6" md="3">
                 <MudCard>
@@ -58,8 +58,8 @@ else @if (PasswordsResponse != null && PasswordsResponse.Data.Count() >= 1)
             </MudItem>
         }
     </MudGrid>
-    <div class="d-flex flex-column align-center">
-        <MudPagination ShowFirstButton="true" ShowLastButton="true" Count=" PasswordsResponse.TotalPages" Class="mt-4" />
+    <div class="d-flex justify-center">
+        <MudPagination ShowFirstButton="true" ShowLastButton="true" Count="PasswordsResponse.TotalPages" Selected="PasswordsResponse.PageNumber" SelectedChanged="(async (p)=>await SelectedPageChnaged(p))" Class="mt-4" />
     </div>
 }
 else
@@ -85,6 +85,7 @@ else
     private List<string> PasswordsTitles = new List<string>();
     private string searchValue;
     private bool loading = true;
+    private int pageSize = 10;
     private async Task OpenCreateDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
@@ -117,14 +118,18 @@ else
             return new string[0];
         return PasswordsTitles.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
-    private async Task LoadPasswords(string filter = null)
+    private async Task LoadPasswords(string filter = null, int pagenumber = 1)
     {
         loading = true;
-        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto() { Filter = filter });
+        PasswordsResponse = await PasswordsService.GetListAsync(new GetListDto() { Filter = filter, PageSize = pageSize, PageNumber = pagenumber });
         if (PasswordsResponse.Success && PasswordsResponse.Data != null && PasswordsResponse.Data.Count() >= 1)
         {
             PasswordsTitles = PasswordsResponse.Data.Select(p => p.Title).ToList();
         }
         loading = false;
+    }
+    private async Task SelectedPageChnaged(int page)
+    {
+        await LoadPasswords(pagenumber: page);
     }
 }
