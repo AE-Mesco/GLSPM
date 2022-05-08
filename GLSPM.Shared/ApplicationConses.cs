@@ -26,6 +26,7 @@ namespace GLSPM.Domain
                 public static string Restore(int id) => Controller + $"/Restore/{id}";
                 public static string Create = Controller + "/";
                 public static string ChnageLogo = Controller + "/Logo";
+                public static string GeneratePassword = Controller + "/Generate";
                 public static string GetTrashed(PaginationParametersBase input) => Controller + $"/Trashed?pagenumber={input.PageNumber}&pagesize={input.PageSize}";
             }
         }

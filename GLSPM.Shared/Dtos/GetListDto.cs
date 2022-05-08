@@ -10,5 +10,6 @@ namespace GLSPM.Domain.Dtos
     {
         public string Filter { get; set; }
         public string Sorting { get; set; }
+        public bool IncludeDeleted { get; set; }
     }
 }

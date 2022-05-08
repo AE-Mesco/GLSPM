@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.AppServices.Interfaces
 {
-    public interface ICardsAppService : IAppService<Card,int,CardReadDto, CardCreateDto, CardUpdateDto>, ITrasherAppService<CardReadDto, int>
+    public interface ICardsAppService : IAppService<Card,int,CardReadDto, CardCreateDto, CardUpdateDto>, ITrasherAppService<CardReadDto, int>, ILogosAppService<int>
     {
-        Task ChangeLogo(ChangeLogoDto<int> input);
+       
     }
 }

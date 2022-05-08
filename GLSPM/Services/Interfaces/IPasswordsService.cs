@@ -16,5 +16,6 @@ namespace GLSPM.Client.Services.Interfaces
         Task<SingleObjectResponse<PasswordReadDto>> RestoreAsync(int id);
         Task<MultiObjectsResponse<IEnumerable<PasswordReadDto>>> GetTrashedListAsync(GetListDto input);
         Task<bool> Exists(string title);
+        Task<SingleObjectResponse<string>> GeneratePassword(int length);
     }
 }

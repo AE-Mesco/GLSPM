@@ -81,7 +81,7 @@ namespace GLSPM.Application.AppServices
         public async override Task<MultiObjectsResponse<IEnumerable<CardReadDto>>> GetListAsync(GetListDto input)
         {
             IEnumerable<Card> cards;
-            int totalCount;
+            int totalCount=0;
             if (!string.IsNullOrWhiteSpace(input.Filter))
             {
                 input.Filter = input.Filter.ToLower();
@@ -105,6 +105,11 @@ namespace GLSPM.Application.AppServices
             response.Message = "Items Found";
             response.StatusCode = StatusCodes.Status200OK;
             return response;
+        }
+
+        public Task<string> GetLogoPathAsync(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<bool> IsDeleted(int key)

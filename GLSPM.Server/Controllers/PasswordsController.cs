@@ -55,6 +55,12 @@ namespace GLSPM.Server.Controllers
             var results=await _passwordsAppService.CreateAsync(input);
             return results.Success ? Created("",results) : BadRequest(results);
         }
+        [HttpPost("Generate")]
+        public async Task<IActionResult> GeneratePassword([FromBody] int length)
+        {
+            var results = await _passwordsAppService.GeneratePassword(length);
+            return results.Success ? Created("", results) : BadRequest(results);
+        }
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id,[FromBody]PasswordUpdateDto input)
         {

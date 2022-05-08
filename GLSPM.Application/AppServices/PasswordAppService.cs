@@ -21,12 +21,14 @@ using System.Threading.Tasks;
 using GLSPM.Domain.Dtos;
 using GLSPM.Domain.Dtos.Passwords;
 using GLSPM.Application.Helpers;
+using Microsoft.AspNetCore.Identity;
 
 namespace GLSPM.Application.AppServices
 {
     public class PasswordAppService : AppServiceBase<Password, int, PasswordReadDto, PasswordCreateDto, PasswordUpdateDto>, IPasswordsAppService
     {
         private readonly Crypto _crypto;
+        private readonly IAuthenticationAppService _authenticationAppService;
         private readonly string _encryptionCode;
 
         public PasswordAppService(IUnitOfWork unitOfWork,
@@ -38,9 +40,11 @@ namespace GLSPM.Application.AppServices
             IOptions<FilesPathes> filesPathes,
             IUriAppService uriAppService,
             IHttpContextAccessor httpContextAccessor,
-            Crypto crypto) : base(unitOfWork, logger, repository, mapper, configuration, environment, filesPathes, uriAppService, httpContextAccessor)
+            Crypto crypto,
+            IAuthenticationAppService authenticationAppService) : base(unitOfWork, logger, repository, mapper, configuration, environment, filesPathes, uriAppService, httpContextAccessor)
         {
             _crypto = crypto;
+            _authenticationAppService = authenticationAppService;
             _encryptionCode = configuration.GetSection("EncryptionCode").Value;
         }
 
@@ -217,6 +221,26 @@ namespace GLSPM.Application.AppServices
                     Error = "The Item Title already exists"
                 };
             }
+        }
+
+        public async Task<SingleObjectResponse<string>> GeneratePassword(int length)
+        {
+            var password = _authenticationAppService.GenerateRandomPassword(new PasswordOptions
+            {
+                RequireDigit=true,
+                RequireNonAlphanumeric= true,
+                RequireLowercase = true,
+                RequireUppercase= true,
+                RequiredLength=length
+            });
+
+            return new SingleObjectResponse<string>
+            {
+                Success = true,
+                Data = password,
+                StatusCode = StatusCodes.Status201Created,
+                Message = "Password Generated"
+            };
         }
     }
 }

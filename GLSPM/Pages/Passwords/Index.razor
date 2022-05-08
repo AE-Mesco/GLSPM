@@ -4,8 +4,23 @@
     <MudText Typo="Typo.h3" Class="mb-5" Align="Align.Left">
         Passwords
     </MudText>
-    <MudButton Variant="Variant.Filled" @onclick="@(async ()=>await OpenCreateDialog())" StartIcon="@Icons.Material.Filled.Create"
-               Color="Color.Primary" Class="align-self-center mb-5" Size="Size.Large">New</MudButton>
+    <MudButtonGroup OverrideStyles="false" Variant="Variant.Text">
+        <MudButton Variant="Variant.Filled" @onclick="@(async ()=>await OpenCreateDialog())" StartIcon="@Icons.Material.Filled.AddCard"
+                   Color="Color.Success" Class="align-self-center mb-5">Add</MudButton>
+        <MudButton Variant="Variant.Filled" @onclick="@(async ()=>await OpenGeneratePasswordDialog())" StartIcon="@Icons.Material.Filled.Password"
+                   Color="Color.Primary" Class="align-self-center mb-5">Generate</MudButton>
+        <MudTooltip>
+            <ChildContent>
+                <MudToggleIconButton ToggledChanged="(async (e)=>await ToggleDataMode(e))" Variant="Variant.Text"
+                                     ToggledIcon="@Icons.Material.Filled.DeleteSweep" ToggledColor="Color.Error"
+                                     Icon="@Icons.Material.Filled.ViewList" Color="Color.Success" Class="align-self-center mb-5" Size="Size.Large" />
+            </ChildContent>
+            <TooltipContent>
+                @DataMode
+            </TooltipContent>
+        </MudTooltip>
+
+    </MudButtonGroup>
 </div>
 <MudAutocomplete T="string" Label="Search Active Passwords" Style="margin-bottom:20px;max-width:500px;"
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
@@ -86,6 +101,8 @@ else
     private string searchValue;
     private bool loading = true;
     private int pageSize = 10;
+    private bool TrashMode = false;
+    private string DataMode => TrashMode ? "Showing Deleting Items" : "Showing Active Items";
     private async Task OpenCreateDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
@@ -131,5 +148,15 @@ else
     private async Task SelectedPageChnaged(int page)
     {
         await LoadPasswords(pagenumber: page);
+    }
+    private async Task ToggleDataMode(bool mode)
+    {
+        TrashMode = mode;
+    }
+    private async Task OpenGeneratePasswordDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var results = DialogService.Show<GeneratePasswordDialog>("Generate Password", options);
+        var dialogres = await results.Result;
     }
 }

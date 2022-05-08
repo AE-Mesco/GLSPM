@@ -55,7 +55,7 @@ namespace GLSPM.Client.Services
             content.Add(
                content: new StringContent(input.Title),
                name: "\"title\"");
-        
+
             //adding the Username
             content.Add(
                content: new StringContent(input.Username),
@@ -100,8 +100,14 @@ namespace GLSPM.Client.Services
 
         public async Task<bool> Exists(string title)
         {
-            var response =await GetListAsync(new GetListDto { Filter = title });
+            var response = await GetListAsync(new GetListDto { Filter = title });
             return response.Data.Count() == 0 || response.Data == null;
+        }
+
+        public async Task<SingleObjectResponse<string>> GeneratePassword(int length)
+        {
+            var response = await _httpClient.PostAsJsonAsync(Passwords.GeneratePassword, length);
+            return await response.Content.ReadFromJsonAsync<SingleObjectResponse<string>>();
         }
 
         public async Task<SingleObjectResponse<PasswordReadDto>> GetAsync(int id)
@@ -133,14 +139,14 @@ namespace GLSPM.Client.Services
 
         public async Task<SingleObjectResponse<PasswordReadDto>> RestoreAsync(int id)
         {
-            var response = await _httpClient.PutAsync(Passwords.Restore(id),null);
+            var response = await _httpClient.PutAsync(Passwords.Restore(id), null);
             PasswordsChnaged?.Invoke();
             return await response.Content.ReadFromJsonAsync<SingleObjectResponse<PasswordReadDto>>();
         }
 
-        public async Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(int id,PasswordUpdateDto input)
+        public async Task<SingleObjectResponse<PasswordReadDto>> UpdateAsync(int id, PasswordUpdateDto input)
         {
-            var response = await _httpClient.PutAsJsonAsync(Passwords.Update(id),input);
+            var response = await _httpClient.PutAsJsonAsync(Passwords.Update(id), input);
             PasswordsChnaged?.Invoke();
             return await response.Content.ReadFromJsonAsync<SingleObjectResponse<PasswordReadDto>>();
         }

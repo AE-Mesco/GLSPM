@@ -11,9 +11,8 @@ using System.Threading.Tasks;
 
 namespace GLSPM.Application.AppServices.Interfaces
 {
-    public interface IPasswordsAppService : IAppService<Password,int,PasswordReadDto,PasswordCreateDto,PasswordUpdateDto>, ITrasherAppService<PasswordReadDto, int>
+    public interface IPasswordsAppService : IAppService<Password,int,PasswordReadDto,PasswordCreateDto,PasswordUpdateDto>, ITrasherAppService<PasswordReadDto, int>, ILogosAppService<int>
     {
-        Task ChangeLogo(ChangeLogoDto<int> input);
-        Task<string> GetLogoPathAsync(int id);
+        Task<SingleObjectResponse<string>> GeneratePassword(int length);
     }
 }
