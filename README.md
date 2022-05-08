@@ -9,11 +9,11 @@ A software that handles your own login details & credit cards
 [User Use Cases](https://github.com/AE-Mesco/GLSPM/blob/master/Planning/UseCases.pdf)
 ## Features
 - Manage Application Users & Accounts
-- CRUD on Login Data
+- CRUD on Login Data (passswords)
+- Soft delete passwords
+- Generate Passwords
 - SPA web app
 - CRUD Credit Cards "Soon"
-- Soft Delete "Soon"
-- Pagination "Soon"
 
 ## Used Technologies
 
