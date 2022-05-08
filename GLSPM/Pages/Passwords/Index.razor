@@ -69,7 +69,7 @@ else @if (PasswordsResponse != null && PasswordsResponse.Data.Count() >= 1)
         @foreach (var password in PasswordsResponse.Data)
         {
             <MudItem xs="12" sm="6" md="3">
-                <PasswordCard Model="password" OnRefreshPasswords="(async ()=>await LoadPasswords())" />
+                <PasswordCard Model="password" OnRefreshPasswords="(async ()=>await ToggleDataMode(TrashMode))" />
             </MudItem>
         }
     </MudGrid>
@@ -79,9 +79,13 @@ else @if (PasswordsResponse != null && PasswordsResponse.Data.Count() >= 1)
 }
 else
 {
-    <MudText Typo="Typo.body2">
-        No Passwords Added Yet!
-    </MudText>
+    <MudStack>
+        <MudImage Src="imgs/empty-nodata.svg" Height="500" />
+        <MudText Typo="Typo.h5" Align="Align.Center">
+            Empty no data!
+        </MudText>
+    </MudStack>
+
 }
 
 <style>
@@ -130,7 +134,7 @@ else
     }
     private async Task<IEnumerable<string>> SearchInTitles(string value)
     {
-        await LoadPasswords(value);
+        await ToggleDataMode(TrashMode);
         if (string.IsNullOrEmpty(value))
             return new string[0];
         return PasswordsTitles.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
@@ -152,11 +156,30 @@ else
     private async Task ToggleDataMode(bool mode)
     {
         TrashMode = mode;
+        switch (TrashMode)
+        {
+            case true:
+                await LoadDeletedPasswords(1);
+                break;
+            case false:
+                await LoadPasswords();
+                break;
+        }
     }
     private async Task OpenGeneratePasswordDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var results = DialogService.Show<GeneratePasswordDialog>("Generate Password", options);
         var dialogres = await results.Result;
+    }
+    private async Task LoadDeletedPasswords(int page)
+    {
+        loading = true;
+        PasswordsResponse = await PasswordsService.GetTrashedListAsync(new GetListDto() { PageSize = pageSize, PageNumber = page });
+        if (PasswordsResponse.Success && PasswordsResponse.Data != null && PasswordsResponse.Data.Count() >= 1)
+        {
+            PasswordsTitles = PasswordsResponse.Data.Select(p => p.Title).ToList();
+        }
+        loading = false;
     }
 }

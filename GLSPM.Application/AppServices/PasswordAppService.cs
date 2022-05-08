@@ -195,7 +195,8 @@ namespace GLSPM.Application.AppServices
 
         public async Task<string> GetLogoPathAsync(int id)
         {
-            var password=await Repository.GetAsync(id);
+            var dbset=await Repository.GetAsQueryableAsync();
+            var password=await dbset.IgnoreQueryFilters().FirstOrDefaultAsync(p=>p.ID==id);
             if (password != null)
             {
                 password.LogoPath ??= Path.GetFullPath($"{FilesPathes.LogosPath}/nologo.jpg");

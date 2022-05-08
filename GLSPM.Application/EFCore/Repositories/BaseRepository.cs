@@ -26,7 +26,7 @@ namespace GLSPM.Application.EFCore.Repositories
 
         public async Task DeleteAsync(TKey key)
         {
-            var entity= await GetAsync(key);
+            var entity = await _dbSet.IgnoreQueryFilters().Where($"e=>e.ID=={key}").FirstOrDefaultAsync();
             await DeleteAsync(entity);
         }
 
